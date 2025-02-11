@@ -3,7 +3,7 @@ using UnityEngine.InputSystem;
 
 namespace Player.Scripts
 {
-    public class LookAtCursor : MonoBehaviour
+    public sealed class LookAtCursor : MonoBehaviour
     {
         [SerializeField] private Camera cam;
         private InputAction _mouseLookAction;

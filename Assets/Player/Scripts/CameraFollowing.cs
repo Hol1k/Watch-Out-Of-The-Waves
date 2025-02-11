@@ -2,10 +2,10 @@ using UnityEngine;
 
 namespace Player.Scripts
 {
-    public class CameraFollowing : MonoBehaviour
+    public sealed class CameraFollowing : MonoBehaviour
     {
         private Vector3 _cameraPosition;
-        private float _currRange;
+        private float _currCameraRange;
         private bool _changeRangeRequested = true;
         
         public float cameraRange = 10f;
@@ -42,7 +42,7 @@ namespace Player.Scripts
 
         private void CheckCameraRangeChange()
         {
-            if (Mathf.Approximately(_currRange, cameraRange))
+            if (Mathf.Approximately(_currCameraRange, cameraRange))
                 _changeRangeRequested = true;
         }
 
@@ -50,9 +50,9 @@ namespace Player.Scripts
         {
             if (_changeRangeRequested)
             {
-                _currRange = cameraRange;
+                _currCameraRange = cameraRange;
                 
-                var offset = Mathf.Sqrt(_currRange * _currRange / 2);
+                var offset = Mathf.Sqrt(_currCameraRange * _currCameraRange / 2);
                 _cameraPosition = new Vector3(0, offset, -offset);
             }
         }
