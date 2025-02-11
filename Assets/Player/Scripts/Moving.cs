@@ -53,8 +53,8 @@ namespace Player.Scripts
             _movementVector.y = 0;
             
             _movementVector = _isSprinting ?
-                    Vector3.ClampMagnitude(_movementVector * sprintSpeed, sprintSpeed)
-                    : Vector3.ClampMagnitude(_movementVector * moveSpeed, moveSpeed);
+                    _movementVector * sprintSpeed :
+                    _movementVector * moveSpeed;
 
             _movementVector.y = gravity;
             

@@ -10,7 +10,7 @@ namespace Player.Scripts
         public float cameraRange = 10f;
         
         public Transform target;
-        public float moveSmoothingCoefficient = 3f;
+        [Min(0f)] public float moveSmoothingCoefficient = 0.5f;
 
         private void Awake()
         {
@@ -27,7 +27,7 @@ namespace Player.Scripts
 
         private void MoveToTarget()
         {
-            transform.position = Vector3.Lerp(transform.position, target.position + _cameraPosition, moveSmoothingCoefficient * Time.deltaTime);
+            transform.position = Vector3.Lerp(transform.position, target.position + _cameraPosition, 1 / moveSmoothingCoefficient * Time.deltaTime);
         }
     }
 }
