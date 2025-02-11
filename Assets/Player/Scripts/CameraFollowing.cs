@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 namespace Player.Scripts
@@ -6,6 +5,8 @@ namespace Player.Scripts
     public class CameraFollowing : MonoBehaviour
     {
         private Vector3 _cameraPosition;
+        private float _currRange;
+        private bool _changeRangeRequested = true;
         
         public float cameraRange = 10f;
         
@@ -16,8 +17,17 @@ namespace Player.Scripts
         {
             if (target == null) Debug.LogError("No target assigned!");
             
-            var offset = Mathf.Sqrt(cameraRange * cameraRange / 2);
-            _cameraPosition = new Vector3(0, offset, -offset);
+            ChangeCameraPosition();
+        }
+
+        public void FixedUpdate()
+        {
+            ChangeCameraPosition();
+        }
+
+        public void Update()
+        {
+            CheckCameraRangeChange();
         }
 
         private void LateUpdate()
@@ -28,6 +38,23 @@ namespace Player.Scripts
         private void MoveToTarget()
         {
             transform.position = Vector3.Lerp(transform.position, target.position + _cameraPosition, 1 / moveSmoothingCoefficient * Time.deltaTime);
+        }
+
+        private void CheckCameraRangeChange()
+        {
+            if (Mathf.Approximately(_currRange, cameraRange))
+                _changeRangeRequested = true;
+        }
+
+        private void ChangeCameraPosition()
+        {
+            if (_changeRangeRequested)
+            {
+                _currRange = cameraRange;
+                
+                var offset = Mathf.Sqrt(_currRange * _currRange / 2);
+                _cameraPosition = new Vector3(0, offset, -offset);
+            }
         }
     }
 }
