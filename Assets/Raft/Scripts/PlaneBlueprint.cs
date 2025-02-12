@@ -5,7 +5,6 @@ namespace Raft.Scripts
         public void BuildPlane(RaftBuildingsManager manager)
         {
             manager.BuildPlane(this);
-            Destroy(gameObject);
         }
     }
 }

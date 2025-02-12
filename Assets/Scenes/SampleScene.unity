@@ -542,6 +542,7 @@ GameObject:
   - component: {fileID: 905653338}
   - component: {fileID: 905653337}
   - component: {fileID: 905653343}
+  - component: {fileID: 905653344}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -643,6 +644,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cam: {fileID: 330585545}
+--- !u!114 &905653344
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 905653336}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a2a324e37ca94c4fb6bdac323a23b9b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1165201057
 GameObject:
   m_ObjectHideFlags: 0
@@ -687,6 +700,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d6e3812e95326304b8f747e9d3c65ec3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  inventory: {fileID: 905653344}
   cam: {fileID: 330585545}
   planePrefab: {fileID: 6730893107850535528, guid: afe7192385f14434386950dee737fb7b, type: 3}
   planeBlueprintPrefab: {fileID: 7495399468897288954, guid: 0ed434bab98da0d48beb417cc0e24192, type: 3}

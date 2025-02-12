@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Inventory;
 using Player.Scripts;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -15,6 +16,8 @@ namespace Raft.Scripts
         
         private readonly List<Plane> _planes = new();
         private readonly List<Plane> _planeBlueprints = new();
+        
+        [SerializeField] private EntityInventory inventory;
         
         [SerializeField] private Camera cam;
         
@@ -33,6 +36,11 @@ namespace Raft.Scripts
             
             PlayerStateMachine.ChangeState(PlayerStateMachine.PlayerState.Default);
             SetBlueprintsActive(false);
+        }
+
+        private void Start()
+        {
+            inventory.AddItem("Wood", 9);
         }
 
         private void FixedUpdate()
@@ -73,7 +81,7 @@ namespace Raft.Scripts
 
         private void LeftMouseInput()
         {
-            if (_mouseLeftClickAction.IsPressed())
+            if (_mouseLeftClickAction.WasPerformedThisFrame())
                 _mouseLeftClickRequested = true;
         }
 
@@ -185,7 +193,11 @@ namespace Raft.Scripts
 
         public void BuildPlane(PlaneBlueprint blueprint)
         {
-            PlaceBlueprintsAroundPlane(PlacePlane(blueprint));
+            if (inventory.GetItemCount("Wood") >= 4)
+            {
+                PlaceBlueprintsAroundPlane(PlacePlane(blueprint));
+                inventory.RemoveItem("Wood", 4);
+            }
         }
     }
 }
