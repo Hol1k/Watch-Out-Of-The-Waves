@@ -32,6 +32,7 @@ namespace Raft.Scripts
             PlaceBlueprintsAroundPlane(startPlane);
             
             PlayerStateMachine.ChangeState(PlayerStateMachine.PlayerState.Default);
+            SetBlueprintsActive(false);
         }
 
         private void FixedUpdate()
@@ -50,9 +51,23 @@ namespace Raft.Scripts
             if (_buildModeAction.WasPressedThisFrame())
             {
                 if (PlayerStateMachine.State != PlayerStateMachine.PlayerState.BuildMode)
+                {
                     PlayerStateMachine.ChangeState(PlayerStateMachine.PlayerState.BuildMode);
+                    SetBlueprintsActive(true);
+                }
                 else
+                {
                     PlayerStateMachine.ChangeState(PlayerStateMachine.PlayerState.Default);
+                    SetBlueprintsActive(false);
+                }
+            }
+        }
+
+        private void SetBlueprintsActive(bool value)
+        {
+            foreach (var blueprint in _planeBlueprints)
+            {
+                blueprint.gameObject.SetActive(value);
             }
         }
 
@@ -67,9 +82,13 @@ namespace Raft.Scripts
             if (_mouseLeftClickRequested)
             {
                 var ray = cam.ScreenPointToRay(_mouseLookAction.ReadValue<Vector2>());
-                if (!Physics.Raycast(ray, out var hit)) return;
+                if (!Physics.Raycast(ray, out var hit))
+                {
+                    _mouseLeftClickRequested = false;
+                    return;
+                }
 
-                if (PlayerStateMachine.State == PlayerStateMachine.PlayerState.BuildMode  &&
+                if (PlayerStateMachine.State == PlayerStateMachine.PlayerState.BuildMode &&
                     hit.collider.TryGetComponent(out PlaneBlueprint planeBlueprint))
                 {
                     planeBlueprint.BuildPlane(this);
@@ -80,18 +99,42 @@ namespace Raft.Scripts
         }
 
         // ReSharper disable Unity.PerformanceAnalysis
-        private Plane PlacePlane(int xCord, int yCord)
+        private Plane PlacePlane(PlaneBlueprint blueprint)
         {
-            var planeGameObject = Instantiate(planePrefab, new Vector3(xCord, 0, yCord) * 3, Quaternion.identity);
+            var xCoord = blueprint.xCoord;
+            var yCoord = blueprint.yCoord;
+            
+            _planeBlueprints.Remove(blueprint);
+            Destroy(blueprint.gameObject);
+            
+            var planeGameObject = Instantiate(planePrefab, new Vector3(xCoord, 0, yCoord) * 3, Quaternion.identity);
             planeGameObject.transform.SetParent(transform);
-            planeGameObject.name = "Plane(" + xCord + "," + yCord + ")";
+            planeGameObject.name = "Plane(" + xCoord + "," + yCoord + ")";
             
             var plane = planeGameObject.GetComponent<Plane>();
-            plane.xCord = xCord;
-            plane.yCord = yCord;
+            plane.xCoord = xCoord;
+            plane.yCoord = yCoord;
             
             _planes.Add(plane);
             return plane;
+        }
+
+        private Plane PlacePlane(int xCoord, int yCoord)
+        {
+            //If Blueprint with it coords exists
+            foreach (var blueprint in _planeBlueprints)
+            {
+                if (blueprint.xCoord == xCoord && blueprint.yCoord == yCoord)
+                {
+                    return PlacePlane(blueprint.GetComponent<PlaneBlueprint>());
+                }
+            }
+            
+            //Else
+            var planeGameObject = Instantiate(planeBlueprintPrefab, new Vector3(xCoord, 0, yCoord) * 3, Quaternion.identity);
+            planeGameObject.transform.SetParent(transform);
+            
+            return PlacePlane(planeGameObject.GetComponent<PlaneBlueprint>());
         }
 
         // ReSharper disable Unity.PerformanceAnalysis
@@ -100,15 +143,15 @@ namespace Raft.Scripts
             HashSet<(int, int)> occupiedCells = new();
             foreach (Plane placedPlane in _planes)
             {
-                if (placedPlane.xCord >= plane.xCord - 1 && placedPlane.xCord <= plane.xCord + 1 &&
-                    placedPlane.yCord >= plane.yCord - 1 && placedPlane.yCord <= plane.yCord + 1)
-                    occupiedCells.Add((placedPlane.xCord, placedPlane.yCord));
+                if (placedPlane.xCoord >= plane.xCoord - 1 && placedPlane.xCoord <= plane.xCoord + 1 &&
+                    placedPlane.yCoord >= plane.yCoord - 1 && placedPlane.yCoord <= plane.yCoord + 1)
+                    occupiedCells.Add((placedPlane.xCoord, placedPlane.yCoord));
             }
             foreach (Plane planeBlueprint in _planeBlueprints)
             {
-                if (planeBlueprint.xCord >= plane.xCord - 1 && planeBlueprint.xCord <= plane.xCord + 1 &&
-                    planeBlueprint.yCord >= plane.yCord - 1 && planeBlueprint.yCord <= plane.yCord + 1)
-                    occupiedCells.Add((planeBlueprint.xCord, planeBlueprint.yCord));
+                if (planeBlueprint.xCoord >= plane.xCoord - 1 && planeBlueprint.xCoord <= plane.xCoord + 1 &&
+                    planeBlueprint.yCoord >= plane.yCoord - 1 && planeBlueprint.yCoord <= plane.yCoord + 1)
+                    occupiedCells.Add((planeBlueprint.xCoord, planeBlueprint.yCoord));
             }
 
             for (int x = -1; x <= 1; x++)
@@ -117,32 +160,32 @@ namespace Raft.Scripts
                 {
                     if (x == 0 && y == 0) continue;
                     
-                    int worldPlaneXCord = plane.xCord + x;
-                    int worldPlaneYCord = plane.yCord + y;
+                    int worldPlaneXCoord = plane.xCoord + x;
+                    int worldPlaneYCoord = plane.yCoord + y;
                     
-                    if (occupiedCells.Contains((worldPlaneXCord, worldPlaneYCord))) continue;
+                    if (occupiedCells.Contains((worldPlaneXCoord, worldPlaneYCoord))) continue;
                     
                     var planeBlueprintGameObject =
                         Instantiate(
                             planeBlueprintPrefab,
-                            new Vector3(worldPlaneXCord, 0, worldPlaneYCord) * 3,
+                            new Vector3(worldPlaneXCoord, 0, worldPlaneYCoord) * 3,
                             Quaternion.identity);
                     
                     planeBlueprintGameObject.transform.SetParent(transform);
-                    planeBlueprintGameObject.name = "PlaneBlueprint(" + worldPlaneXCord + "," + worldPlaneYCord + ")";
+                    planeBlueprintGameObject.name = "PlaneBlueprint(" + worldPlaneXCoord + "," + worldPlaneYCoord + ")";
             
                     var planeBlueprint = planeBlueprintGameObject.GetComponent<Plane>();
-                    planeBlueprint.xCord = worldPlaneXCord;
-                    planeBlueprint.yCord = worldPlaneYCord;
+                    planeBlueprint.xCoord = worldPlaneXCoord;
+                    planeBlueprint.yCoord = worldPlaneYCoord;
                     
                     _planeBlueprints.Add(planeBlueprint);
                 }
             }
         }
 
-        public void BuildPlane(int xCord, int yCord)
+        public void BuildPlane(PlaneBlueprint blueprint)
         {
-            PlaceBlueprintsAroundPlane(PlacePlane(xCord, yCord));
+            PlaceBlueprintsAroundPlane(PlacePlane(blueprint));
         }
     }
 }
