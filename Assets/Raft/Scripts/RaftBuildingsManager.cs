@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Inventory;
 using Player.Scripts;
@@ -167,6 +168,7 @@ namespace Raft.Scripts
                 for (int y = -1; y <= 1; y++)
                 {
                     if (x == 0 && y == 0) continue;
+                    if (Mathf.Approximately(Mathf.Abs(x), Mathf.Abs(y))) continue;
                     
                     int worldPlaneXCoord = plane.xCoord + x;
                     int worldPlaneYCoord = plane.yCoord + y;
