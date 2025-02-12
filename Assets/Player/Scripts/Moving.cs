@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -11,6 +12,10 @@ namespace Player.Scripts
     
         private Vector3 _movementVector;
         private bool _isSprinting;
+        
+        private Vector3 _visualModelPosition;
+        [SerializeField] private Transform modelTransform;
+        [SerializeField] private float smoothingFactor = 0.05f;
 
         public float gravity = -9.81f;
         public float moveSpeed = 10f;
@@ -22,6 +27,8 @@ namespace Player.Scripts
             _sprintingAction = InputSystem.actions.FindAction("Sprint");
             
             _characterController = GetComponent<CharacterController>();
+            
+            _visualModelPosition = modelTransform.position;
         }
 
         private void Update()
@@ -33,6 +40,11 @@ namespace Player.Scripts
         private void FixedUpdate()
         {
             ApplyMovement();
+        }
+
+        private void LateUpdate()
+        {
+            SmoothModel();
         }
 
         private void MovingInput()
@@ -59,6 +71,12 @@ namespace Player.Scripts
             _movementVector.y = gravity;
             
             _characterController.Move(_movementVector * Time.fixedDeltaTime);
+        }
+
+        private void SmoothModel()
+        {
+            _visualModelPosition = Vector3.Lerp(_visualModelPosition, transform.position, 1 / smoothingFactor * Time.deltaTime);
+            modelTransform.position = _visualModelPosition;
         }
     }
 }
