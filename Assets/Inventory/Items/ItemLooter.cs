@@ -17,6 +17,7 @@ namespace Inventory.Items
             if (other.gameObject.TryGetComponent(out LootableItem item))
             {
                 _inventory.AddItem(item.itemName, item.count);
+                item.GetComponent<SphereCollider>().enabled = false; // Need for fix double loot item
                 Destroy(item.gameObject);
             }
         }

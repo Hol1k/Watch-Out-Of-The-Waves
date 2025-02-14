@@ -40,6 +40,7 @@ namespace Raft.Scripts
 
         private void Start()
         {
+            //Give start items
             inventory.AddItem("Wood", 9);
         }
 
