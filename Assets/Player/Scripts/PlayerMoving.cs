@@ -1,10 +1,9 @@
-using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 namespace Player.Scripts
 {
-    public sealed class Moving : MonoBehaviour
+    public sealed class PlayerMoving : MonoBehaviour
     {
         private InputAction _movingAction;
         private InputAction _sprintingAction;

@@ -1,5 +1,3 @@
-using UnityEngine;
-
 namespace Player.Scripts
 {
     public static class PlayerStateMachine
@@ -15,9 +13,6 @@ namespace Player.Scripts
         public static void ChangeState(PlayerState newPlayerState)
         {
             State = newPlayerState;
-            
-            // ReSharper disable once Unity.PerformanceCriticalCodeInvocation
-            Debug.Log("Changed PlayerState to " + newPlayerState);
         }
     }
 }

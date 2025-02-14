@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Inventory;
 using Player.Scripts;
@@ -140,10 +139,14 @@ namespace Raft.Scripts
             }
             
             //Else
-            var planeGameObject = Instantiate(planeBlueprintPrefab, new Vector3(xCoord, 0, yCoord) * 3, Quaternion.identity);
-            planeGameObject.transform.SetParent(transform);
+            var planeBlueprintGameObject = Instantiate(planeBlueprintPrefab, new Vector3(xCoord, 0, yCoord) * 3, Quaternion.identity);
+            planeBlueprintGameObject.transform.SetParent(transform);
             
-            return PlacePlane(planeGameObject.GetComponent<PlaneBlueprint>());
+            var planeBlueprint = planeBlueprintGameObject.GetComponent<Plane>();
+            planeBlueprint.xCoord = xCoord;
+            planeBlueprint.yCoord = yCoord;
+            
+            return PlacePlane(planeBlueprintGameObject.GetComponent<PlaneBlueprint>());
         }
 
         // ReSharper disable Unity.PerformanceAnalysis
