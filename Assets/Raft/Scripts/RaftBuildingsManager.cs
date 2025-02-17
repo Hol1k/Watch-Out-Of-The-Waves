@@ -3,6 +3,7 @@ using Inventory;
 using Player.Scripts;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Serialization;
 
 namespace Raft.Scripts
 {
@@ -16,8 +17,10 @@ namespace Raft.Scripts
         private InputAction _mouseLeftClickAction;
         private bool _mouseLeftClickRequested;
         
+        private readonly List<Building> _buildings = new();
         private readonly List<Plane> _planes = new();
         private readonly List<Plane> _planeBlueprints = new();
+        private Plane _corePlain;
         
         [SerializeField] private EntityInventory inventory;
         
@@ -25,6 +28,9 @@ namespace Raft.Scripts
         
         [SerializeField] private GameObject planePrefab;
         [SerializeField] private GameObject planeBlueprintPrefab;
+        [FormerlySerializedAs("mainCorePrefab")] [SerializeField] private GameObject corePlanePrefab;
+        [Space]
+        [SerializeField] private List<BuildingPrefabConfig> buildingPrefabs;
 
         private void Awake()
         {
@@ -42,7 +48,7 @@ namespace Raft.Scripts
             inventory.AddItem("Wood", 9);
             
             //Place start plane
-            var startPlane = PlacePlane(0, 0);
+            var startPlane = PlacePlane(0, 0, isCorePlain: true);
             PlaceBlueprintsAroundPlane(startPlane);
             SetBlueprintsActive(false);
         }
@@ -111,17 +117,20 @@ namespace Raft.Scripts
         }
 
         // ReSharper disable Unity.PerformanceAnalysis
-        private Plane PlacePlane(PlaneBlueprint blueprint, int maxHealth = DefaultHealth, int currentHealth = DefaultHealth)
+        private Plane PlacePlane(PlaneBlueprint blueprint, int maxHealth = DefaultHealth, int currentHealth = DefaultHealth, bool isCorePlain = false)
         {
             var xCoord = blueprint.xCoord;
             var yCoord = blueprint.yCoord;
             
             _planeBlueprints.Remove(blueprint);
+            _buildings.Remove(blueprint);
             Destroy(blueprint.gameObject);
             
-            var planeGameObject = Instantiate(planePrefab, new Vector3(xCoord, 0, yCoord) * 3, Quaternion.identity);
+            var planeGameObject = Instantiate(isCorePlain ? corePlanePrefab : planePrefab, new Vector3(xCoord, 0, yCoord) * 3, Quaternion.identity);
             planeGameObject.transform.SetParent(transform);
-            planeGameObject.name = "Plane(" + xCoord + "," + yCoord + ")";
+            planeGameObject.name = isCorePlain ?
+                "CorePlane" :
+                "Plane(" + xCoord + "," + yCoord + ")";
             
             var plane = planeGameObject.GetComponent<Plane>();
             plane.xCoord = xCoord;
@@ -129,12 +138,17 @@ namespace Raft.Scripts
             plane.maxHealth = maxHealth;
             plane.CurrentHealth = currentHealth;
             plane.SetBuildingManager(this);
+            plane.buildingType = isCorePlain ?
+                BuildingType.CorePlane :
+                BuildingType.Plane;
             
             _planes.Add(plane);
+            _buildings.Add(plane);
+            if (isCorePlain) _corePlain = plane;
             return plane;
         }
 
-        private Plane PlacePlane(int xCoord, int yCoord, int maxHealth = DefaultHealth, int currentHealth = DefaultHealth)
+        private Plane PlacePlane(int xCoord, int yCoord, int maxHealth = DefaultHealth, int currentHealth = DefaultHealth, bool isCorePlain = false)
         {
             //If Blueprint with it coords exists
             foreach (var blueprint in _planeBlueprints)
@@ -144,7 +158,8 @@ namespace Raft.Scripts
                     return PlacePlane(
                         blueprint.GetComponent<PlaneBlueprint>(),
                         maxHealth,
-                        currentHealth);
+                        currentHealth,
+                        isCorePlain);
                 }
             }
             
@@ -159,7 +174,8 @@ namespace Raft.Scripts
             return PlacePlane(
                 planeBlueprintGameObject.GetComponent<PlaneBlueprint>(),
                 maxHealth,
-                currentHealth);
+                currentHealth,
+                isCorePlain);
         }
 
         // ReSharper disable Unity.PerformanceAnalysis
@@ -204,8 +220,10 @@ namespace Raft.Scripts
                     planeBlueprint.xCoord = worldPlaneXCoord;
                     planeBlueprint.yCoord = worldPlaneYCoord;
                     planeBlueprint.SetBuildingManager(this);
+                    planeBlueprint.buildingType = BuildingType.PlaneBlueprint;
                     
                     _planeBlueprints.Add(planeBlueprint);
+                    _buildings.Add(planeBlueprint);
                 }
             }
         }

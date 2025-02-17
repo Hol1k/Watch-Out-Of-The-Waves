@@ -1,4 +1,3 @@
-using System;
 using GeneralScripts;
 using UnityEngine;
 
@@ -6,7 +5,9 @@ namespace Raft.Scripts
 {
     public class Building : MonoBehaviour, IDamageable
     {
-        protected RaftBuildingsManager _buildingManager;
+        protected RaftBuildingsManager BuildingManager;
+        
+        public BuildingType buildingType;
         
         [SerializeField] [Min(0)] private int currentHealth;
 
@@ -24,6 +25,7 @@ namespace Raft.Scripts
 
         protected void OnValidate()
         {
+            if (!Application.isPlaying) return;
             if (currentHealth > maxHealth) currentHealth = maxHealth;
             else if (currentHealth == 0) OnDeath();
         }
@@ -41,6 +43,6 @@ namespace Raft.Scripts
         }
         
         public void SetBuildingManager(RaftBuildingsManager buildingManager)
-            => _buildingManager = buildingManager;
+            => BuildingManager = buildingManager;
     }
 }
