@@ -8,6 +8,8 @@ namespace Raft.Scripts
 {
     public sealed class RaftBuildingsManager : MonoBehaviour
     {
+        private const int DefaultHealth = 20;
+        
         private InputAction _buildModeAction;
         
         private InputAction _mouseLookAction;
@@ -31,17 +33,18 @@ namespace Raft.Scripts
             
             _buildModeAction = InputSystem.actions.FindAction("BuildMode");
             
-            var startPlane = PlacePlane(0, 0);
-            PlaceBlueprintsAroundPlane(startPlane);
-            
             PlayerStateMachine.ChangeState(PlayerStateMachine.PlayerState.Default);
-            SetBlueprintsActive(false);
         }
 
         private void Start()
         {
             //Give start items
             inventory.AddItem("Wood", 9);
+            
+            //Place start plane
+            var startPlane = PlacePlane(0, 0);
+            PlaceBlueprintsAroundPlane(startPlane);
+            SetBlueprintsActive(false);
         }
 
         private void FixedUpdate()
@@ -100,7 +103,7 @@ namespace Raft.Scripts
                 if (PlayerStateMachine.State == PlayerStateMachine.PlayerState.BuildMode &&
                     hit.collider.TryGetComponent(out PlaneBlueprint planeBlueprint))
                 {
-                    planeBlueprint.BuildPlane(this);
+                    planeBlueprint.BuildPlane();
                 }
                 
                 _mouseLeftClickRequested = false;
@@ -108,7 +111,7 @@ namespace Raft.Scripts
         }
 
         // ReSharper disable Unity.PerformanceAnalysis
-        private Plane PlacePlane(PlaneBlueprint blueprint)
+        private Plane PlacePlane(PlaneBlueprint blueprint, int maxHealth = DefaultHealth, int currentHealth = DefaultHealth)
         {
             var xCoord = blueprint.xCoord;
             var yCoord = blueprint.yCoord;
@@ -123,19 +126,25 @@ namespace Raft.Scripts
             var plane = planeGameObject.GetComponent<Plane>();
             plane.xCoord = xCoord;
             plane.yCoord = yCoord;
+            plane.maxHealth = maxHealth;
+            plane.CurrentHealth = currentHealth;
+            plane.SetBuildingManager(this);
             
             _planes.Add(plane);
             return plane;
         }
 
-        private Plane PlacePlane(int xCoord, int yCoord)
+        private Plane PlacePlane(int xCoord, int yCoord, int maxHealth = DefaultHealth, int currentHealth = DefaultHealth)
         {
             //If Blueprint with it coords exists
             foreach (var blueprint in _planeBlueprints)
             {
                 if (blueprint.xCoord == xCoord && blueprint.yCoord == yCoord)
                 {
-                    return PlacePlane(blueprint.GetComponent<PlaneBlueprint>());
+                    return PlacePlane(
+                        blueprint.GetComponent<PlaneBlueprint>(),
+                        maxHealth,
+                        currentHealth);
                 }
             }
             
@@ -147,7 +156,10 @@ namespace Raft.Scripts
             planeBlueprint.xCoord = xCoord;
             planeBlueprint.yCoord = yCoord;
             
-            return PlacePlane(planeBlueprintGameObject.GetComponent<PlaneBlueprint>());
+            return PlacePlane(
+                planeBlueprintGameObject.GetComponent<PlaneBlueprint>(),
+                maxHealth,
+                currentHealth);
         }
 
         // ReSharper disable Unity.PerformanceAnalysis
@@ -191,17 +203,21 @@ namespace Raft.Scripts
                     var planeBlueprint = planeBlueprintGameObject.GetComponent<Plane>();
                     planeBlueprint.xCoord = worldPlaneXCoord;
                     planeBlueprint.yCoord = worldPlaneYCoord;
+                    planeBlueprint.SetBuildingManager(this);
                     
                     _planeBlueprints.Add(planeBlueprint);
                 }
             }
         }
 
-        public void BuildPlane(PlaneBlueprint blueprint)
+        public void BuildPlane(PlaneBlueprint blueprint, int maxHealth = DefaultHealth, int currentHealth = DefaultHealth)
         {
             if (inventory.GetItemCount("Wood") >= 4)
             {
-                PlaceBlueprintsAroundPlane(PlacePlane(blueprint));
+                PlaceBlueprintsAroundPlane(PlacePlane(
+                    blueprint,
+                    maxHealth,
+                    currentHealth));
                 inventory.RemoveItem("Wood", 4);
             }
         }

@@ -1,8 +1,6 @@
-using UnityEngine;
-
 namespace Raft.Scripts
 {
-    public class Plane : MonoBehaviour
+    public class Plane : Building
     {
         public int xCoord;
         public int yCoord;

@@ -2,9 +2,9 @@ namespace Raft.Scripts
 {
     public class PlaneBlueprint : Plane
     {
-        public void BuildPlane(RaftBuildingsManager manager)
+        public void BuildPlane()
         {
-            manager.BuildPlane(this);
+            _buildingManager.BuildPlane(this);
         }
     }
 }
