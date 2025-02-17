@@ -6,5 +6,11 @@ namespace Raft.Scripts
         {
             BuildingManager.BuildPlane(this);
         }
+
+        public override void OnDeath()
+        {
+            BuildingManager.RemovePlaneBlueprintFromList(this);
+            Destroy(gameObject);
+        }
     }
 }

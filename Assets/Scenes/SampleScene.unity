@@ -669,6 +669,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 49e8b3fc65dc4d1496d61bd2c99daced, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  lootRadius: 4
 --- !u!1 &1165201057
 GameObject:
   m_ObjectHideFlags: 0

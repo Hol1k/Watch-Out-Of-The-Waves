@@ -1,4 +1,5 @@
 using GeneralScripts;
+using UnityEditor;
 using UnityEngine;
 
 namespace Raft.Scripts
@@ -9,7 +10,7 @@ namespace Raft.Scripts
         
         public BuildingType buildingType;
         
-        [SerializeField] [Min(0)] private int currentHealth;
+        [SerializeField] [Min(0)] protected int currentHealth;
 
         public int CurrentHealth
         {
@@ -27,7 +28,7 @@ namespace Raft.Scripts
         {
             if (!Application.isPlaying) return;
             if (currentHealth > maxHealth) currentHealth = maxHealth;
-            else if (currentHealth == 0) OnDeath();
+            else if (currentHealth == 0) EditorApplication.delayCall += OnDeath;
         }
 
         public virtual void TakeDamage(int damage)
@@ -37,11 +38,12 @@ namespace Raft.Scripts
             if (currentHealth <= 0) OnDeath();
         }
 
-        public void OnDeath()
+        public virtual void OnDeath()
         {
+            BuildingManager.RemoveBuildingFromList(this);
             Destroy(gameObject);
         }
-        
+
         public void SetBuildingManager(RaftBuildingsManager buildingManager)
             => BuildingManager = buildingManager;
     }
