@@ -807,7 +807,11 @@ MonoBehaviour:
   planePrefab: {fileID: 6730893107850535528, guid: afe7192385f14434386950dee737fb7b, type: 3}
   planeBlueprintPrefab: {fileID: 7495399468897288954, guid: 0ed434bab98da0d48beb417cc0e24192, type: 3}
   corePlanePrefab: {fileID: 2244203179749574993, guid: ed54d85d557600f4f9364b695f987a36, type: 3}
-  buildingPrefabs: []
+  buildingPrefabs:
+  - buildingType: 1
+    prefab: {fileID: 6271008408113500737, guid: d6354a21774c5f54da9ada32cbdbd9a2, type: 3}
+    health: 15
+  chosenBuilding: 0
 --- !u!1 &1224701252
 GameObject:
   m_ObjectHideFlags: 0

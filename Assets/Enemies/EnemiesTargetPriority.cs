@@ -1,6 +1,6 @@
 namespace Enemies
 {
-    public enum TargetPriority
+    public enum EnemiesTargetPriority
     {
         ClosestBuilding,
         Player

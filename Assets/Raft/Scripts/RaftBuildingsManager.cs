@@ -2,9 +2,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Inventory;
 using Player.Scripts;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.Serialization;
 
 namespace Raft.Scripts
 {
@@ -29,9 +29,11 @@ namespace Raft.Scripts
         
         [SerializeField] private GameObject planePrefab;
         [SerializeField] private GameObject planeBlueprintPrefab;
-        [FormerlySerializedAs("mainCorePrefab")] [SerializeField] private GameObject corePlanePrefab;
+        [SerializeField] private GameObject corePlanePrefab;
         [Space]
         [SerializeField] private List<BuildingPrefabConfig> buildingPrefabs;
+
+        public BuildingType chosenBuilding = 0;
 
         private void Awake()
         {
@@ -112,13 +114,50 @@ namespace Raft.Scripts
                 }
 
                 if (PlayerStateMachine.State == PlayerStateMachine.PlayerState.BuildMode &&
-                    hit.collider.TryGetComponent(out PlaneBlueprint planeBlueprint))
+                    hit.collider.TryGetComponent(out Plane plane))
                 {
-                    planeBlueprint.BuildPlane();
+                    if (plane is PlaneBlueprint planeBlueprint)
+                        planeBlueprint.BuildPlane();
+                    else if (chosenBuilding != 0)
+                    {
+                        Vector3 buildingPosition = hit.point;
+                        Quaternion buildingRotation = Quaternion.FromToRotation(Vector3.up, hit.normal);
+                        PlaceBuilding(chosenBuilding, buildingPosition, buildingRotation);
+                    }
                 }
                 
                 _mouseLeftClickRequested = false;
             }
+        }
+
+        private void PlaceBuilding(BuildingType buildingType, Vector3 buildingPosition, Quaternion buildingRotation)
+        {
+            BuildingPrefabConfig towerConfig = BuildingPrefabConfig.DefaultConfig;
+            foreach (var prefabConfig in buildingPrefabs)
+            {
+                if (prefabConfig.buildingType == buildingType)
+                    towerConfig = prefabConfig;
+            }
+                
+            if (towerConfig.buildingType == BuildingType.None)
+            {
+                Debug.LogError("No building prefab configured");
+                return;
+            }
+            
+            var buildingObject = Instantiate(towerConfig.prefab, buildingPosition, buildingRotation);
+            buildingObject.transform.SetParent(transform);
+            
+            float objectHeight = buildingObject.GetComponent<Collider>().bounds.extents.y;
+            buildingObject.transform.position = new Vector3(buildingPosition.x, buildingPosition.y + objectHeight, buildingPosition.z);
+            
+            var building = buildingObject.GetComponent<Building>();
+            _buildings.Add(building);
+            building.SetBuildingManager(this);
+            
+            building.buildingType = buildingType;
+            building.maxHealth = towerConfig.health;
+            building.CurrentHealth = towerConfig.health;
         }
 
         // ReSharper disable Unity.PerformanceAnalysis
@@ -147,7 +186,6 @@ namespace Raft.Scripts
                 BuildingType.Plane;
             
             _planes.Add(plane);
-            _buildings.Add(plane);
             if (isCorePlain) _corePlain = plane;
             return plane;
         }
@@ -203,7 +241,7 @@ namespace Raft.Scripts
             }
         }
 
-        public PlaneBlueprint PlacePlaneBlueprint(int xCoord, int yCoord)
+        private PlaneBlueprint PlacePlaneBlueprint(int xCoord, int yCoord)
         {
             var planeBlueprintGameObject =
                 Instantiate(
@@ -223,7 +261,6 @@ namespace Raft.Scripts
             planeBlueprint.CurrentHealth = int.MaxValue;
                     
             _planeBlueprints.Add(planeBlueprint);
-            _buildings.Add(planeBlueprint);
             
             return planeBlueprint;
         }
@@ -276,15 +313,15 @@ namespace Raft.Scripts
             DestroyPlaneNeighbourBlueprints(plane);
             
             var neighbourPlanes = CheckNeighbourPlanes(plane);
-            bool isToFullDestory = true;
+            bool isToFullDestroy = true;
             foreach (var neighbourPlane in neighbourPlanes)
             {
-                if (!(neighbourPlane is PlaneBlueprint)) isToFullDestory = false;
+                if (!(neighbourPlane is PlaneBlueprint)) isToFullDestroy = false;
             }
 
             RemovePlaneFromList(plane);
             Destroy(plane.gameObject);
-            if (!isToFullDestory) PlacePlaneBlueprint(plane.xCoord, plane.yCoord);
+            if (!isToFullDestroy) PlacePlaneBlueprint(plane.xCoord, plane.yCoord);
         }
 
         private void DestroyPlaneNeighbourBlueprints(Plane plane)
@@ -316,13 +353,11 @@ namespace Raft.Scripts
         public void RemovePlaneFromList(Plane plane)
         {
             _planes.Remove(plane);
-            _buildings.Remove(plane);
         }
 
         public void RemovePlaneBlueprintFromList(PlaneBlueprint blueprint)
         {
             _planeBlueprints.Remove(blueprint);
-            _buildings.Remove(blueprint);
         }
 
         public void RemoveBuildingFromList(Building building)
