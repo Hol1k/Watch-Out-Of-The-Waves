@@ -25,7 +25,11 @@ namespace Raft.Scripts
 
         private void MoveToTarget()
         {
-            if (!Target) Destroy(gameObject);
+            if (!Target)
+            {
+                Destroy(gameObject);
+                return;
+            }
             
             transform.LookAt(Target);
 
