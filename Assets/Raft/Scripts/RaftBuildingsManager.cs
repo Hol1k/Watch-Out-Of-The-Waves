@@ -31,7 +31,7 @@ namespace Raft.Scripts
         [SerializeField] private GameObject planeBlueprintPrefab;
         [SerializeField] private GameObject corePlanePrefab;
         [Space]
-        [SerializeField] private List<BuildingPrefabConfig> buildingPrefabs;
+        [SerializeField] private List<Building> buildingPrefabs;
 
         public BuildingType chosenBuilding = 0;
 
@@ -132,32 +132,29 @@ namespace Raft.Scripts
 
         private void PlaceBuilding(BuildingType buildingType, Vector3 buildingPosition, Quaternion buildingRotation)
         {
-            BuildingPrefabConfig towerConfig = BuildingPrefabConfig.DefaultConfig;
-            foreach (var prefabConfig in buildingPrefabs)
+            Building building = null;
+            foreach (var prefab in buildingPrefabs)
             {
-                if (prefabConfig.buildingType == buildingType)
-                    towerConfig = prefabConfig;
+                if (prefab.buildingType == buildingType)
+                    building = prefab;
             }
                 
-            if (towerConfig.buildingType == BuildingType.None)
+            if (!building)
             {
                 Debug.LogError("No building prefab configured");
                 return;
             }
             
-            var buildingObject = Instantiate(towerConfig.prefab, buildingPosition, buildingRotation);
+            var buildingObject = Instantiate(building.gameObject, buildingPosition, buildingRotation);
             buildingObject.transform.SetParent(transform);
             
             float objectHeight = buildingObject.GetComponent<Collider>().bounds.extents.y;
             buildingObject.transform.position = new Vector3(buildingPosition.x, buildingPosition.y + objectHeight, buildingPosition.z);
             
-            var building = buildingObject.GetComponent<Building>();
             _buildings.Add(building);
             building.SetBuildingManager(this);
             
             building.buildingType = buildingType;
-            building.maxHealth = towerConfig.health;
-            building.CurrentHealth = towerConfig.health;
         }
 
         // ReSharper disable Unity.PerformanceAnalysis
