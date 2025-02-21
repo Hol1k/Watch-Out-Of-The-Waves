@@ -52,7 +52,7 @@ namespace Raft.Scripts
         private void Start()
         {
             //Give start items
-            inventory.AddItem("Wood", 9);
+            inventory.AddItem("Wood", 999);
             
             //Place start plane
             var startPlane = PlacePlane(0, 0, isCorePlain: true);
@@ -116,11 +116,19 @@ namespace Raft.Scripts
                 if (PlayerStateMachine.State == PlayerStateMachine.PlayerState.BuildMode &&
                     hit.collider.TryGetComponent(out Plane plane))
                 {
-                    if (plane is PlaneBlueprint planeBlueprint)
+                    if (plane is PlaneBlueprint planeBlueprint &&
+                        chosenBuilding == BuildingType.Plane)
                         planeBlueprint.BuildPlane();
                     else if (chosenBuilding != 0)
                     {
                         Vector3 buildingPosition = hit.point;
+
+                        if (hit.collider.TryGetComponent(out PlaneBlueprint _))
+                        {
+                            _mouseLeftClickRequested = false;
+                            return;
+                        }
+                        
                         Quaternion buildingRotation = Quaternion.FromToRotation(Vector3.up, hit.normal);
                         PlaceBuilding(chosenBuilding, buildingPosition, buildingRotation);
                     }
