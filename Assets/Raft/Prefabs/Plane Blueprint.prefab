@@ -121,5 +121,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4d014328bd1e4677b6fdfa658f39ee88, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  xCord: 0
-  yCord: 0
+  resources:
+  - resourceName: Wood
+    amount: 4
+  buildingType: 0
+  currentHealth: 0
+  maxHealth: 0
+  xCoord: 0
+  yCoord: 0

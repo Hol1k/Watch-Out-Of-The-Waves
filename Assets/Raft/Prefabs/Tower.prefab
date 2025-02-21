@@ -123,6 +123,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 326c3d391b5247ae97e410602b480ff3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  resources:
+  - resourceName: Wood
+    amount: 5
   buildingType: 1
   currentHealth: 15
   maxHealth: 15

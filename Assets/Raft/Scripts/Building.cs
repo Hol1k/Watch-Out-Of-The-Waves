@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using GeneralScripts;
 using UnityEditor;
 using UnityEngine;
@@ -7,7 +8,8 @@ namespace Raft.Scripts
     public class Building : MonoBehaviour, IDamageable
     {
         protected RaftBuildingsManager BuildingManager;
-        
+
+        public List<ResourcesCostConfig> resources = new();
         public BuildingType buildingType;
         
         [SerializeField] [Min(0)] protected int currentHealth;

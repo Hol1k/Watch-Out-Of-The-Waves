@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Inventory;
 using Player.Scripts;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -52,7 +51,7 @@ namespace Raft.Scripts
         private void Start()
         {
             //Give start items
-            inventory.AddItem("Wood", 999);
+            inventory.AddItem("Wood", 9);
             
             //Place start plane
             var startPlane = PlacePlane(0, 0, isCorePlain: true);
@@ -116,8 +115,7 @@ namespace Raft.Scripts
                 if (PlayerStateMachine.State == PlayerStateMachine.PlayerState.BuildMode &&
                     hit.collider.TryGetComponent(out Plane plane))
                 {
-                    if (plane is PlaneBlueprint planeBlueprint &&
-                        chosenBuilding == BuildingType.Plane)
+                    if (chosenBuilding == BuildingType.Plane && plane is PlaneBlueprint planeBlueprint)
                         planeBlueprint.BuildPlane();
                     else if (chosenBuilding != 0)
                     {
@@ -152,6 +150,17 @@ namespace Raft.Scripts
                 Debug.LogError("No building prefab configured");
                 return;
             }
+
+            if (!CheckNeededResourcesToBuild(building))
+            {
+                Debug.LogError("Not enough resources to build");
+                return;
+            }
+
+            foreach (var resourcesCostConfig in building.resources)
+            {
+                inventory.RemoveItem(resourcesCostConfig.resourceName, resourcesCostConfig.amount);
+            }
             
             var buildingObject = Instantiate(building.gameObject, buildingPosition, buildingRotation);
             buildingObject.transform.SetParent(transform);
@@ -163,6 +172,16 @@ namespace Raft.Scripts
             building.SetBuildingManager(this);
             
             building.buildingType = buildingType;
+        }
+
+        private bool CheckNeededResourcesToBuild(Building building)
+        {
+            foreach (var resourcesCostConfig in building.resources)
+            {
+                if (inventory.GetItemCount(resourcesCostConfig.resourceName) < resourcesCostConfig.amount)
+                    return false;
+            }
+            return true;
         }
 
         // ReSharper disable Unity.PerformanceAnalysis
@@ -303,7 +322,7 @@ namespace Raft.Scripts
 
         public void BuildPlane(PlaneBlueprint blueprint, int maxHealth = DefaultHealth, int currentHealth = DefaultHealth)
         {
-            if (inventory.GetItemCount("Wood") >= 4)
+            if (CheckNeededResourcesToBuild(blueprint))
             {
                 PlaceBlueprintsAroundPlane(PlacePlane(
                     blueprint,
@@ -311,6 +330,8 @@ namespace Raft.Scripts
                     currentHealth));
                 inventory.RemoveItem("Wood", 4);
             }
+            else
+                Debug.LogError("Not enough resources to build");
         }
 
         public void DestroyPlane(Plane plane)
