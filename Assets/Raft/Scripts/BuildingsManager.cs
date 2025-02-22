@@ -4,10 +4,11 @@ using Inventory;
 using Player.Scripts;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Serialization;
 
 namespace Raft.Scripts
 {
-    public sealed class RaftBuildingsManager : MonoBehaviour
+    public sealed class BuildingsManager : MonoBehaviour
     {
         private const int DefaultHealth = 20;
         
@@ -22,17 +23,26 @@ namespace Raft.Scripts
         private List<Plane> _planeBlueprints;
         private Plane _corePlain;
         
-        [SerializeField] private EntityInventory inventory;
+        private Building _druggedBuilding;
         
         [SerializeField] private Camera cam;
         
+        [Space]
+        [SerializeField] private EntityInventory inventory;
+        [SerializeField] private Transform playerModel;
+
+        [Space]
+        public BuildingType chosenBuilding = 0;
+        public Vector3 druggedBuildingOffset;
+        
+        [Space]
         [SerializeField] private GameObject planePrefab;
         [SerializeField] private GameObject planeBlueprintPrefab;
         [SerializeField] private GameObject corePlanePrefab;
-        [Space]
         [SerializeField] private List<Building> buildingPrefabs;
-
-        public BuildingType chosenBuilding = 0;
+        
+        [Space]
+        public List<ResourcesCostConfig> startResources;
 
         private void Awake()
         {
@@ -51,7 +61,10 @@ namespace Raft.Scripts
         private void Start()
         {
             //Give start items
-            inventory.AddItem("Wood", 9);
+            foreach (var resource in startResources)
+            {
+                inventory.AddItem(resource.resourceName, resource.amount);
+            }
             
             //Place start plane
             var startPlane = PlacePlane(0, 0, isCorePlain: true);
@@ -113,65 +126,91 @@ namespace Raft.Scripts
                 }
 
                 if (PlayerStateMachine.State == PlayerStateMachine.PlayerState.BuildMode &&
-                    hit.collider.TryGetComponent(out Plane plane))
+                    hit.collider.TryGetComponent(out Building buildingHit))
                 {
-                    if (chosenBuilding == BuildingType.Plane && plane is PlaneBlueprint planeBlueprint)
-                        planeBlueprint.BuildPlane();
-                    else if (chosenBuilding != 0)
+                    if (buildingHit is Plane planeHit)
                     {
-                        Vector3 buildingPosition = hit.point;
-
-                        if (hit.collider.TryGetComponent(out PlaneBlueprint _))
+                        if (chosenBuilding == BuildingType.Plane &&
+                                 planeHit is PlaneBlueprint planeBlueprint) //If chosen plane
+                            planeBlueprint.BuildPlane();
+                        else if (chosenBuilding != 0 && planeHit is not PlaneBlueprint) //If chosen other building
                         {
-                            _mouseLeftClickRequested = false;
-                            return;
+                            Vector3 buildingPosition = hit.point;
+
+                            Quaternion buildingRotation = Quaternion.FromToRotation(Vector3.up, hit.normal);
+                            PlaceBuilding(chosenBuilding, buildingPosition, buildingRotation);
                         }
-                        
-                        Quaternion buildingRotation = Quaternion.FromToRotation(Vector3.up, hit.normal);
-                        PlaceBuilding(chosenBuilding, buildingPosition, buildingRotation);
                     }
+                    else if (chosenBuilding == 0 && !_druggedBuilding)
+                        PickUpBuilding(buildingHit);
                 }
-                
+
                 _mouseLeftClickRequested = false;
             }
+        }
+
+        private void PickUpBuilding(Building building)
+        {
+            _druggedBuilding = building;
+            chosenBuilding = BuildingType.DruggedBuilding;
+            
+            building.transform.SetParent(playerModel);
+            
+            building.transform.localPosition = druggedBuildingOffset;
         }
 
         private void PlaceBuilding(BuildingType buildingType, Vector3 buildingPosition, Quaternion buildingRotation)
         {
             Building building = null;
-            foreach (var prefab in buildingPrefabs)
+            GameObject buildingObject;
+
+            if (_druggedBuilding)
             {
-                if (prefab.buildingType == buildingType)
-                    building = prefab;
-            }
+                if (buildingType != BuildingType.DruggedBuilding) return;
                 
-            if (!building)
+                buildingObject = _druggedBuilding.gameObject;
+                buildingObject.transform.SetParent(transform);
+
+                _druggedBuilding = null;
+                chosenBuilding = 0;
+            }
+            else
             {
-                Debug.LogError("No building prefab configured");
-                return;
+                foreach (var prefab in buildingPrefabs)
+                {
+                    if (prefab.buildingType == buildingType)
+                        building = prefab;
+                }
+
+                if (!building)
+                {
+                    Debug.LogError("No building prefab configured");
+                    return;
+                }
+
+                if (!CheckNeededResourcesToBuild(building))
+                {
+                    Debug.LogError("Not enough resources to build");
+                    return;
+                }
+
+                foreach (var resourcesCostConfig in building.resources)
+                {
+                    inventory.RemoveItem(resourcesCostConfig.resourceName, resourcesCostConfig.amount);
+                }
+
+                buildingObject = Instantiate(building.gameObject, buildingPosition, buildingRotation);
+                buildingObject.transform.SetParent(transform);
+                buildingObject.name = buildingType.ToString();
+
+                _buildings.Add(building);
+                building.SetBuildingManager(this);
+
+                building.buildingType = buildingType;
             }
 
-            if (!CheckNeededResourcesToBuild(building))
-            {
-                Debug.LogError("Not enough resources to build");
-                return;
-            }
-
-            foreach (var resourcesCostConfig in building.resources)
-            {
-                inventory.RemoveItem(resourcesCostConfig.resourceName, resourcesCostConfig.amount);
-            }
-            
-            var buildingObject = Instantiate(building.gameObject, buildingPosition, buildingRotation);
-            buildingObject.transform.SetParent(transform);
-            
             float objectHeight = buildingObject.GetComponent<Collider>().bounds.extents.y;
             buildingObject.transform.position = new Vector3(buildingPosition.x, buildingPosition.y + objectHeight, buildingPosition.z);
-            
-            _buildings.Add(building);
-            building.SetBuildingManager(this);
-            
-            building.buildingType = buildingType;
         }
 
         private bool CheckNeededResourcesToBuild(Building building)

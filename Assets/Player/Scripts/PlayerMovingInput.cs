@@ -3,7 +3,7 @@ using UnityEngine.InputSystem;
 
 namespace Player.Scripts
 {
-    public sealed class PlayerMoving : MonoBehaviour
+    public sealed class PlayerMovingInput : MonoBehaviour
     {
         private InputAction _movingAction;
         private InputAction _sprintingAction;

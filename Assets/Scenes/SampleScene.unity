@@ -802,14 +802,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d6e3812e95326304b8f747e9d3c65ec3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  inventory: {fileID: 905653344}
   cam: {fileID: 330585545}
+  inventory: {fileID: 905653344}
+  playerModel: {fileID: 588195298}
+  chosenBuilding: 0
+  druggedBuildingOffset: {x: 0, y: 2.5, z: 0}
   planePrefab: {fileID: 6730893107850535528, guid: afe7192385f14434386950dee737fb7b, type: 3}
   planeBlueprintPrefab: {fileID: 7495399468897288954, guid: 0ed434bab98da0d48beb417cc0e24192, type: 3}
   corePlanePrefab: {fileID: 2244203179749574993, guid: ed54d85d557600f4f9364b695f987a36, type: 3}
   buildingPrefabs:
   - {fileID: 5598821019397191048, guid: d6354a21774c5f54da9ada32cbdbd9a2, type: 3}
-  chosenBuilding: 0
+  startResources:
+  - resourceName: Wood
+    amount: 999
 --- !u!1 &1224701252
 GameObject:
   m_ObjectHideFlags: 0

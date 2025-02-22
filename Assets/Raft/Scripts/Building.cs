@@ -7,7 +7,7 @@ namespace Raft.Scripts
 {
     public class Building : MonoBehaviour, IDamageable
     {
-        protected RaftBuildingsManager BuildingManager;
+        protected BuildingsManager BuildingManager;
 
         public List<ResourcesCostConfig> resources = new();
         public BuildingType buildingType;
@@ -46,7 +46,7 @@ namespace Raft.Scripts
             Destroy(gameObject);
         }
 
-        public void SetBuildingManager(RaftBuildingsManager buildingManager)
+        public void SetBuildingManager(BuildingsManager buildingManager)
             => BuildingManager = buildingManager;
     }
 }
