@@ -7,7 +7,7 @@ namespace Raft.Scripts
     public class TowerProjectile : MonoBehaviour
     {
         [NonSerialized] public Transform Target;
-        [NonSerialized] public int Damage;
+        [NonSerialized] public float Damage;
         [NonSerialized] public float Speed = 10f;
 
         private void FixedUpdate()

@@ -21,7 +21,7 @@ namespace Raft.Scripts
             switch (stats.priorityTarget)
             {
                 case TowersTargetPriority.NearestEnemy:
-                    ChoseNearby();
+                    ChoseTargetNearby();
                     break;
             }
         }
@@ -35,7 +35,7 @@ namespace Raft.Scripts
             }
 
             Shoot();
-            _attackCooldown = 60f / stats.attackSpeed;
+            _attackCooldown = 60f / stats.GetCurrentAttackSpeed(level);
         }
 
         private void Shoot()
@@ -49,14 +49,14 @@ namespace Raft.Scripts
 
             var projectile = projectileObject.GetComponent<TowerProjectile>();
             projectile.Target = _target;
-            projectile.Damage = stats.damage;
-            projectile.Speed = stats.projectileSpeed;
+            projectile.Damage = stats.GetCurrentDamage(level);
+            projectile.Speed = stats.GetCurrentProjectileSpeed(level);
         }
 
-        private void ChoseNearby()
+        private void ChoseTargetNearby()
         {
             // ReSharper disable once Unity.PreferNonAllocApi
-            var hitColliders = Physics.OverlapSphere(transform.position, stats.attackRange);
+            var hitColliders = Physics.OverlapSphere(transform.position, stats.GetCurrentAttackRange(level));
             
             Vector3 position2D = new Vector3(transform.position.x, 0, transform.position.z);
             Transform nearestEnemy = null;

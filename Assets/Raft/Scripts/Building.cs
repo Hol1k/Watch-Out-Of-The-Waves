@@ -11,6 +11,7 @@ namespace Raft.Scripts
 
         public List<ResourcesCostConfig> resources = new();
         public BuildingType buildingType;
+        public int level = 1;
         
         [SerializeField] [Min(0)] protected int currentHealth;
 
@@ -33,10 +34,10 @@ namespace Raft.Scripts
             else if (currentHealth == 0) EditorApplication.delayCall += OnDeath;
         }
 
-        public virtual void TakeDamage(int damage)
+        public virtual void TakeDamage(float damage)
         {
             if (damage <= 0) return;
-            currentHealth -= damage;
+            currentHealth -= (int)damage;
             if (currentHealth <= 0) OnDeath();
         }
 

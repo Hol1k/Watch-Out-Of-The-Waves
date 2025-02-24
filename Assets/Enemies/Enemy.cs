@@ -97,10 +97,10 @@ namespace Enemies
             modelTransform.position = _visualModelPosition;
         }
 
-        public void TakeDamage(int damage)
+        public void TakeDamage(float damage)
         {
             if (damage <= 0) return;
-            currentHealth -= damage;
+            currentHealth -= (int)damage;
             if (currentHealth <= 0) OnDeath();
         }
 
