@@ -4,7 +4,6 @@ using Inventory;
 using Player.Scripts;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.Serialization;
 
 namespace Raft.Scripts
 {
@@ -159,7 +158,7 @@ namespace Raft.Scripts
             building.transform.localPosition = druggedBuildingOffset;
         }
 
-        private void PlaceBuilding(BuildingType buildingType, Vector3 buildingPosition, Quaternion buildingRotation)
+        private void PlaceBuilding(BuildingType buildingType, Vector3 buildingPosition, Quaternion buildingRotation, int buildingLevel = 1)
         {
             Building building = null;
             GameObject buildingObject;
@@ -178,7 +177,7 @@ namespace Raft.Scripts
             {
                 foreach (var prefab in buildingPrefabs)
                 {
-                    if (prefab.buildingType == buildingType)
+                    if (prefab.buildingType == buildingType && prefab.level == buildingLevel)
                         building = prefab;
                 }
 
@@ -213,6 +212,35 @@ namespace Raft.Scripts
             buildingObject.transform.position = new Vector3(buildingPosition.x, buildingPosition.y + objectHeight, buildingPosition.z);
         }
 
+        private void UpgradeTower(Building buildingToUpgrade)
+        {
+            Building higherLevelBuilding = null;
+            foreach (var prefab in buildingPrefabs)
+            {
+                if (prefab.buildingType == buildingToUpgrade.buildingType &&
+                    prefab.level == buildingToUpgrade.level + 1)
+                {
+                    higherLevelBuilding = prefab;
+                    break;
+                }
+            }
+
+            if (!higherLevelBuilding)
+            {
+                Debug.LogError("This building hasn't higher level");
+                return;
+            }
+            
+            float objectHeight = buildingToUpgrade.GetComponent<Collider>().bounds.extents.y;
+            Vector3 buildingPosition = buildingToUpgrade.transform.position;
+            buildingPosition.y = buildingToUpgrade.transform.position.y - objectHeight;
+            
+            RemoveBuildingFromList(buildingToUpgrade);
+            PlaceBuilding(buildingToUpgrade.buildingType, buildingPosition,
+                buildingToUpgrade.transform.rotation, buildingToUpgrade.level + 1);
+            Destroy(buildingToUpgrade.gameObject);
+        }
+
         private bool CheckNeededResourcesToBuild(Building building)
         {
             foreach (var resourcesCostConfig in building.resources)
@@ -223,7 +251,6 @@ namespace Raft.Scripts
             return true;
         }
 
-        // ReSharper disable Unity.PerformanceAnalysis
         private Plane PlacePlane(PlaneBlueprint blueprint, int maxHealth = DefaultHealth, int currentHealth = DefaultHealth, bool isCorePlain = false)
         {
             var xCoord = blueprint.xCoord;
@@ -278,7 +305,6 @@ namespace Raft.Scripts
                 isCorePlain);
         }
 
-        // ReSharper disable Unity.PerformanceAnalysis
         private void PlaceBlueprintsAroundPlane(Plane plane)
         {
             HashSet<(int, int)> occupiedCells = new();

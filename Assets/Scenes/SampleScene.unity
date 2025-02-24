@@ -812,6 +812,7 @@ MonoBehaviour:
   corePlanePrefab: {fileID: 2244203179749574993, guid: ed54d85d557600f4f9364b695f987a36, type: 3}
   buildingPrefabs:
   - {fileID: 5598821019397191048, guid: d6354a21774c5f54da9ada32cbdbd9a2, type: 3}
+  - {fileID: 5598821019397191048, guid: 472d61de00f8f994da46e9d0075a3411, type: 3}
   startResources:
   - resourceName: Wood
     amount: 999

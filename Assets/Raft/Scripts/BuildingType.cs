@@ -4,7 +4,7 @@ namespace Raft.Scripts
     {
         None = 0,
         DruggedBuilding,
-        Tower,
+        Cannon,
         CorePlane,
         Plane,
         PlaneBlueprint,
