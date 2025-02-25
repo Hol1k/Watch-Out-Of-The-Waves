@@ -1,13 +1,17 @@
+using System.Collections.Generic;
+using System.Linq;
+using Enemies;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 namespace Player.Scripts
 {
-    public sealed class PlayerMovingInput : MonoBehaviour
+    public sealed class PlayerInput : MonoBehaviour
     {
         private InputAction _movingAction;
         private InputAction _sprintingAction;
         private InputAction _jumpingAction;
+        private InputAction _mouseLeftClickAction;
         private CharacterController _characterController;
     
         private Vector3 _movementVector;
@@ -29,11 +33,21 @@ namespace Player.Scripts
         public float jumpStrength = 8f;
         public float jumpAcceleration = 20f;
 
+        [Space]
+        [SerializeField] private float attackRange;
+        [SerializeField] [Tooltip("By degrees")] private float attackRadius;
+        [SerializeField] [Tooltip("Attack thickness by OY")] private float attackSize = 2f;
+        [SerializeField] private float damage;
+        [SerializeField] [Tooltip("Attacks per minute")] private float attackSpeed;
+
+        private float _attackCooldown;
+
         private void Awake()
         {
             _movingAction = InputSystem.actions.FindAction("Move");
             _sprintingAction = InputSystem.actions.FindAction("Sprint");
             _jumpingAction = InputSystem.actions.FindAction("Jump");
+            _mouseLeftClickAction = InputSystem.actions.FindAction("Mouse LeftClick");
             
             _characterController = GetComponent<CharacterController>();
             
@@ -45,11 +59,13 @@ namespace Player.Scripts
             MovingInput();
             SprintInput();
             JumpInput();
+            AttackInput();
         }
 
         private void FixedUpdate()
         {
             ApplyMovement();
+            CalculateAttackCooldown();
         }
 
         private void LateUpdate()
@@ -76,6 +92,43 @@ namespace Player.Scripts
                 _jumpRequested = true;
         }
 
+        private void AttackInput()
+        {
+            if (_mouseLeftClickAction.WasPerformedThisFrame() &&
+                PlayerStateMachine.State == PlayerStateMachine.PlayerState.Default)
+            {
+                if (_attackCooldown > 0f)
+                {
+                    Debug.Log("Attack is on Cooldown!");
+                    return;
+                }
+                
+                // ReSharper disable once Unity.PreferNonAllocApi
+                var sphereColliders = Physics.OverlapSphere(transform.position, attackRange);
+                // ReSharper disable once Unity.PreferNonAllocApi
+                var boxColliders = Physics.OverlapBox(transform.position,
+                    new Vector3(attackRange, attackSize / 2f, attackRange));
+
+                List<Enemy> enemiesToAttack = new();
+                foreach (var currCollider in sphereColliders.Intersect(boxColliders))
+                {
+                    Vector3 directionToTarget = (currCollider.transform.position - transform.position).normalized;
+                    directionToTarget.y = 0f;
+                    float angle = Vector3.Angle(transform.forward, directionToTarget);
+                    
+                    if (angle <= attackRadius / 2 && currCollider.TryGetComponent(out Enemy enemy))
+                        enemiesToAttack.Add(enemy);
+                }
+
+                foreach (var enemy in enemiesToAttack)
+                {
+                    enemy.TakeDamage(damage);
+                }
+
+                _attackCooldown = 60f / attackSpeed;
+            }
+        }
+
         private void ApplyMovement()
         {
             _movementVector.y = 0;
@@ -98,6 +151,12 @@ namespace Player.Scripts
                 _jumpForce = 0f;
             if (_jumpForce >= 0f)
                 _jumpForce -= jumpAcceleration * Time.fixedDeltaTime;
+        }
+
+        private void CalculateAttackCooldown()
+        {
+            if (_attackCooldown > 0f)
+                _attackCooldown -= Time.fixedDeltaTime;
         }
 
         private void SmoothModel()

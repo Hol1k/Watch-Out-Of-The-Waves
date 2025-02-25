@@ -124,24 +124,28 @@ namespace Raft.Scripts
                     return;
                 }
 
-                if (PlayerStateMachine.State == PlayerStateMachine.PlayerState.BuildMode &&
-                    hit.collider.TryGetComponent(out Building buildingHit))
+                switch (PlayerStateMachine.State)
                 {
-                    if (buildingHit is Plane planeHit)
-                    {
-                        if (chosenBuilding == BuildingType.Plane &&
-                                 planeHit is PlaneBlueprint planeBlueprint) //If chosen plane
-                            planeBlueprint.BuildPlane();
-                        else if (chosenBuilding != 0 && planeHit is not PlaneBlueprint) //If chosen other building
+                    case PlayerStateMachine.PlayerState.BuildMode:
+                        if (hit.collider.TryGetComponent(out Building buildingHit))
                         {
-                            Vector3 buildingPosition = hit.point;
+                            if (buildingHit is Plane planeHit)
+                            {
+                                if (chosenBuilding == BuildingType.Plane &&
+                                    planeHit is PlaneBlueprint planeBlueprint) //If chosen plane
+                                    planeBlueprint.BuildPlane();
+                                else if (chosenBuilding != 0 && planeHit is not PlaneBlueprint) //If chosen other building
+                                {
+                                    Vector3 buildingPosition = hit.point;
 
-                            Quaternion buildingRotation = Quaternion.FromToRotation(Vector3.up, hit.normal);
-                            PlaceBuilding(chosenBuilding, buildingPosition, buildingRotation);
+                                    Quaternion buildingRotation = Quaternion.FromToRotation(Vector3.up, hit.normal);
+                                    PlaceBuilding(chosenBuilding, buildingPosition, buildingRotation);
+                                }
+                            }
+                            else if (chosenBuilding == BuildingType.DruggedBuilding && !_druggedBuilding)
+                                PickUpBuilding(buildingHit);
                         }
-                    }
-                    else if (chosenBuilding == 0 && !_druggedBuilding)
-                        PickUpBuilding(buildingHit);
+                        break;
                 }
 
                 _mouseLeftClickRequested = false;

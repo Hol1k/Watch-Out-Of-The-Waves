@@ -656,6 +656,11 @@ MonoBehaviour:
   gravity: -9.81
   jumpStrength: 8
   jumpAcceleration: 20
+  attackRange: 3
+  attackRadius: 90
+  attackSize: 2.1
+  damage: 5
+  attackSpeed: 60
 --- !u!143 &905653338
 CharacterController:
   m_ObjectHideFlags: 0
