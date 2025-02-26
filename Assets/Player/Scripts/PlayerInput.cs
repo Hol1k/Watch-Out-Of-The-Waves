@@ -94,14 +94,11 @@ namespace Player.Scripts
 
         private void AttackInput()
         {
-            if (_mouseLeftClickAction.WasPerformedThisFrame() &&
+            if (_mouseLeftClickAction.IsPressed() &&
                 PlayerStateMachine.State == PlayerStateMachine.PlayerState.Default)
             {
                 if (_attackCooldown > 0f)
-                {
-                    Debug.Log("Attack is on Cooldown!");
                     return;
-                }
                 
                 // ReSharper disable once Unity.PreferNonAllocApi
                 var sphereColliders = Physics.OverlapSphere(transform.position, attackRange);
