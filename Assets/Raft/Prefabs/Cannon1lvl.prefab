@@ -127,6 +127,8 @@ MonoBehaviour:
   - resourceName: Wood
     amount: 5
   buildingType: 2
+  level: 1
   currentHealth: 15
   maxHealth: 15
   stats: {fileID: 11400000, guid: 1d27e346579439840aa0af39ae501c9d, type: 2}
+  towerAbility: {fileID: 11400000, guid: a64f58e06bba93340a409e4cdd3e16db, type: 2}

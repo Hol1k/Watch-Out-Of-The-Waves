@@ -1,4 +1,5 @@
 using Enemies;
+using Raft.TowerAbilities;
 using UnityEngine;
 
 namespace Raft.Scripts
@@ -9,6 +10,7 @@ namespace Raft.Scripts
         private float _attackCooldown;
         
         public TowerStats stats;
+        public Ability towerAbility;
 
         private void FixedUpdate()
         {
@@ -16,6 +18,11 @@ namespace Raft.Scripts
             AttackTarget();
         }
 
+        public void UseAbility()
+        {
+            towerAbility.Activate(this);
+        }
+        
         private void ChoseTarget()
         {
             switch (stats.priorityTarget)

@@ -35,7 +35,6 @@ namespace Raft.Scripts
             return baseAttackSpeed + attackSpeedPerLevel * level;
         }
 
-
         public float GetCurrentProjectileSpeed(int level)
         {
             return baseProjectileSpeed + projectileSpeedPerLevel * level;
