@@ -45,6 +45,8 @@ namespace Raft.Scripts
                 _attackCooldown -= Time.fixedDeltaTime;
                 return;
             }
+            
+            transform.LookAt(new Vector3(_target.position.x, transform.position.y, _target.position.z));
 
             Shoot();
             _attackCooldown = 60f / GetCurrentAttackSpeed(true);
@@ -52,8 +54,6 @@ namespace Raft.Scripts
 
         private void Shoot()
         {
-            transform.LookAt(new Vector3(_target.position.x, transform.position.y, _target.position.z));
-            
             var projectileObject = Instantiate(stats.projectilePrefab,
                 transform.position + stats.shootPositionOffset,
                 Quaternion.identity);
