@@ -11,6 +11,11 @@ namespace Raft.Scripts
         
         public TowerStats stats;
         public Ability towerAbility;
+        
+        public float damageBonus;
+        public float attackRangeBonus;
+        public float attackSpeedBonus;
+        public float projectileSpeedBonus;
 
         private void FixedUpdate()
         {
@@ -42,7 +47,7 @@ namespace Raft.Scripts
             }
 
             Shoot();
-            _attackCooldown = 60f / stats.GetCurrentAttackSpeed(level);
+            _attackCooldown = 60f / GetCurrentAttackSpeed(true);
         }
 
         private void Shoot()
@@ -56,14 +61,14 @@ namespace Raft.Scripts
 
             var projectile = projectileObject.GetComponent<TowerProjectile>();
             projectile.Target = _target;
-            projectile.Damage = stats.GetCurrentDamage(level);
-            projectile.Speed = stats.GetCurrentProjectileSpeed(level);
+            projectile.Damage = GetCurrentDamage(true);
+            projectile.Speed = GetCurrentProjectileSpeed(true);
         }
 
         private void ChoseTargetNearby()
         {
             // ReSharper disable once Unity.PreferNonAllocApi
-            var hitColliders = Physics.OverlapSphere(transform.position, stats.GetCurrentAttackRange(level));
+            var hitColliders = Physics.OverlapSphere(transform.position, GetCurrentAttackRange(true));
             
             Vector3 position2D = new Vector3(transform.position.x, 0, transform.position.z);
             Transform nearestEnemy = null;
@@ -82,6 +87,34 @@ namespace Raft.Scripts
             }
 
             _target = nearestEnemy;
+        }
+
+        public float GetCurrentDamage(bool withBonus)
+        {
+            if (!withBonus)
+                return stats.baseDamage + stats.damagePerLevel * level;
+            return stats.baseDamage + stats.damagePerLevel * level + damageBonus;
+        }
+
+        public float GetCurrentAttackRange(bool withBonus)
+        {
+            if (!withBonus)
+                return stats.baseAttackRange + stats.attackRangePerLevel * level;
+            return stats.baseAttackRange + stats.attackRangePerLevel * level + attackRangeBonus;
+        }
+
+        public float GetCurrentAttackSpeed(bool withBonus)
+        {
+            if (!withBonus)
+                return stats.baseAttackSpeed + stats.attackSpeedPerLevel * level;
+            return stats.baseAttackSpeed + stats.attackSpeedPerLevel * level + attackSpeedBonus;
+        }
+
+        public float GetCurrentProjectileSpeed(bool withBonus)
+        {
+            if (!withBonus)
+                return stats.baseProjectileSpeed + stats.projectileSpeedPerLevel * level;
+            return stats.baseProjectileSpeed + stats.projectileSpeedPerLevel * level + projectileSpeedBonus;
         }
     }
 }
