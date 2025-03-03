@@ -80,6 +80,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4bd14532eb635104cb1f6d2c3fa9d0d8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  attackType: 0
+  attackProjectilePrefab: {fileID: 7886931391981408971, guid: 8a59f154cf88c03409115c6239af8d71, type: 3}
+  attackOffset: {x: 0, y: 0, z: 0}
   gravity: -9.81
   modelTransform: {fileID: 3431004327948071909}
   smoothingFactor: 0.05

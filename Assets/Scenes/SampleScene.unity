@@ -1005,7 +1005,7 @@ MonoBehaviour:
   cam: {fileID: 330585545}
   inventory: {fileID: 905653344}
   playerModel: {fileID: 588195298}
-  chosenBuilding: 0
+  chosenBuilding: 4
   druggedBuildingOffset: {x: 0, y: 2.5, z: 0}
   planePrefab: {fileID: 6730893107850535528, guid: afe7192385f14434386950dee737fb7b, type: 3}
   planeBlueprintPrefab: {fileID: 7495399468897288954, guid: 0ed434bab98da0d48beb417cc0e24192, type: 3}

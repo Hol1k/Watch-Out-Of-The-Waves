@@ -439,6 +439,7 @@ namespace Raft.Scripts
 
                     if (isBlueprintedToDestroy)
                     {
+                        RemovePlaneBlueprintFromList(neighbourPlane as PlaneBlueprint);
                         Destroy(neighbourPlane.gameObject);
                     }
                 }

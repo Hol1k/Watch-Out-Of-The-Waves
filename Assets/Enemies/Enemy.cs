@@ -1,5 +1,7 @@
 using GeneralScripts;
+using Raft.Scripts;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Enemies
 {
@@ -8,16 +10,26 @@ namespace Enemies
         private const float WaterLevel = 0f;
         private bool _isInWater;
         
+        private bool _isTargetOnRange;
+        [SerializeField] private AttackType attackType;
+        [Tooltip("Projectile for attack prefab with AttackProjectile.cs")]
+        [SerializeField] private GameObject attackProjectilePrefab;
+        [SerializeField] private Vector3 attackOffset;
+
         private CharacterController _characterController;
         [SerializeField] private float gravity = -9.81f;
-        
+
         private Vector3 _visualModelPosition;
+
+
         [Space]
         [SerializeField] private Transform modelTransform;
+
         [SerializeField] private float smoothingFactor = 0.05f;
-        
+
         public Transform target;
-        
+
+
         [Space]
         [SerializeField] [Min(0)] private int currentHealth = 1;
 
@@ -31,8 +43,9 @@ namespace Enemies
                 else currentHealth = value;
             }
         }
-        
+
         public EnemyStats stats;
+        private float _attackCooldown;
 
         private void Awake()
         {
@@ -46,6 +59,7 @@ namespace Enemies
         private void FixedUpdate()
         {
             MoveToTarget();
+            AttackTarget();
         }
 
         private void LateUpdate()
@@ -74,21 +88,51 @@ namespace Enemies
 
         private void MoveToTarget()
         {
-            Vector3 movingVector = Vector3.zero;
-            
-            Vector3 transformPositionWithoutY = transform.position;
-            transformPositionWithoutY.y = 0f;
-            Vector3 targetPositionWithoutY = target.position;
-            transformPositionWithoutY.y = 0f;
-            if (Vector3.Distance(transformPositionWithoutY, targetPositionWithoutY) > stats.attackRange)
+            if (target)
             {
-                movingVector = (transform.rotation * Vector3.forward) * (stats.moveSpeed);
+                Vector3 movingVector = Vector3.zero;
+
+                _isTargetOnRange = false;
+                Collider[] colliders = Physics.OverlapSphere(transform.position, stats.attackRange);
+                foreach (Collider buildingCollider in colliders)
+                {
+                    if (buildingCollider.transform == target)
+                    {
+                        _isTargetOnRange = true;
+                        break;
+                    }
+                }
+
+                if (!_isTargetOnRange)
+                {
+                    transform.LookAt(new Vector3(target.position.x, transform.position.y, target.position.z));
+                    movingVector = (transform.rotation * Vector3.forward) * (stats.moveSpeed);
+                }
+
+                movingVector.y = _isInWater ? WaterLevel - transform.position.y : gravity;
+
+                _characterController.Move(movingVector * Time.fixedDeltaTime);
             }
-            movingVector.y = _isInWater ? WaterLevel - transform.position.y : gravity;
-                
-            _characterController.Move(movingVector * Time.fixedDeltaTime);
-            
-            transform.LookAt(new Vector3(target.position.x, transform.position.y, target.position.z));
+            else
+            {
+                _isTargetOnRange = false;
+            }
+        }
+
+        private void AttackTarget()
+        {
+            if (_attackCooldown > 0f)
+            {
+                _attackCooldown -= Time.fixedDeltaTime;
+                return;
+            }
+            if (_isTargetOnRange)
+            {
+                var attackObject = Instantiate(attackProjectilePrefab, transform.position + attackOffset,
+                    Quaternion.identity);
+                attackObject.GetComponent<EnemyAttackProjectile>().CastAttack(target, stats.damage, attackType);
+                _attackCooldown = 60f / stats.attackSpeed;
+            }
         }
 
         private void SmoothModel()

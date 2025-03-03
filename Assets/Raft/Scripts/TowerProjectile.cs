@@ -35,7 +35,7 @@ namespace Raft.Scripts
 
             Vector3 direction = (Target.position - transform.position).normalized;
 
-            transform.position += direction * (Speed * Time.deltaTime);
+            transform.position += direction * (Speed * Time.fixedDeltaTime);
         }
     }
 }
