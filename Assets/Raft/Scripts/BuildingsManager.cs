@@ -425,7 +425,7 @@ namespace Raft.Scripts
 
             foreach (var neighbourPlane in neighbourPlanes)
             {
-                if (neighbourPlane is PlaneBlueprint)
+                if (neighbourPlane is PlaneBlueprint blueprint)
                 {
                     var blueprintNeighbours = CheckNeighbourPlanes(neighbourPlane);
                     var isBlueprintedToDestroy = true;
@@ -439,8 +439,8 @@ namespace Raft.Scripts
 
                     if (isBlueprintedToDestroy)
                     {
-                        RemovePlaneBlueprintFromList(neighbourPlane as PlaneBlueprint);
-                        Destroy(neighbourPlane.gameObject);
+                        RemovePlaneBlueprintFromList(blueprint);
+                        Destroy(blueprint.gameObject);
                     }
                 }
             }

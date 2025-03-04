@@ -16,11 +16,18 @@ namespace Raft.Scripts
         public float attackRangeBonus;
         public float attackSpeedBonus;
         public float projectileSpeedBonus;
+        
+        [SerializeField] private Transform barrel;
 
         private void FixedUpdate()
         {
             ChoseTarget();
             AttackTarget();
+        }
+
+        private void LateUpdate()
+        {
+            LookAtTarget();
         }
 
         public void UseAbility()
@@ -45,11 +52,18 @@ namespace Raft.Scripts
                 _attackCooldown -= Time.fixedDeltaTime;
                 return;
             }
-            
-            transform.LookAt(new Vector3(_target.position.x, transform.position.y, _target.position.z));
 
             Shoot();
             _attackCooldown = 60f / GetCurrentAttackSpeed(true);
+        }
+
+        private void LookAtTarget()
+        {
+            if (_target)
+            {
+                barrel.LookAt(_target);
+                barrel.Rotate(Vector3.right, -90);
+            }
         }
 
         private void Shoot()
