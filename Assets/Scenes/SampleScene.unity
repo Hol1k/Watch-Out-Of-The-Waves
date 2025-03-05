@@ -945,6 +945,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   inventoryShow: {fileID: 573857934}
+  startResources:
+  - resourceName: Wood
+    amount: 999
 --- !u!114 &905653345
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1013,9 +1016,6 @@ MonoBehaviour:
   buildingPrefabs:
   - {fileID: 5598821019397191048, guid: d6354a21774c5f54da9ada32cbdbd9a2, type: 3}
   - {fileID: 5598821019397191048, guid: 708974389b60d664884250158678e979, type: 3}
-  startResources:
-  - resourceName: Wood
-    amount: 999
 --- !u!1 &1224701252
 GameObject:
   m_ObjectHideFlags: 0

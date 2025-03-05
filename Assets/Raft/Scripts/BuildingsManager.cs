@@ -39,9 +39,6 @@ namespace Raft.Scripts
         [SerializeField] private GameObject planeBlueprintPrefab;
         [SerializeField] private GameObject corePlanePrefab;
         [SerializeField] private List<Building> buildingPrefabs;
-        
-        [Space]
-        public List<ResourcesCostConfig> startResources;
 
         private void Awake()
         {
@@ -59,12 +56,6 @@ namespace Raft.Scripts
 
         private void Start()
         {
-            //Give start items
-            foreach (var resource in startResources)
-            {
-                inventory.AddItem(resource.resourceName, resource.amount);
-            }
-            
             //Place start plane
             var startPlane = PlacePlane(0, 0, isCorePlain: true);
             PlaceBlueprintsAroundPlane(startPlane);

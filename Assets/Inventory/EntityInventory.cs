@@ -1,42 +1,59 @@
+using System;
 using System.Collections.Generic;
 using HUD.Scripts;
+using Raft.Scripts;
 using UnityEngine;
 
 namespace Inventory
 {
     public sealed class EntityInventory : MonoBehaviour
     {
-        private readonly Dictionary<string, int> _items = new Dictionary<string, int>();
+        public readonly Dictionary<string, int> Items = new Dictionary<string, int>();
         
+        [Tooltip("If need show this inventory on HUD (only once can be showed!)")]
         [SerializeField] private InventoryShow inventoryShow;
+        
+        [Space]
+        public List<ResourcesCostConfig> startResources;
+
+        private void Start()
+        {
+            //Give start items
+            foreach (var resource in startResources)
+            {
+                AddItem(resource.resourceName, resource.amount);
+            }
+        }
 
         public int GetItemCount(string itemName)
         {
-            _items.TryGetValue(itemName, out int num);
+            Items.TryGetValue(itemName, out int num);
             
             return num;
         }
 
         public void AddItem(string itemName, int count = 1)
         {
-            if (_items.ContainsKey(itemName))
-                _items[itemName] += count;
+            if (Items.ContainsKey(itemName))
+                Items[itemName] += count;
             else
-                _items.Add(itemName, count);
+                Items.Add(itemName, count);
 
-            inventoryShow.UpdateItemList(_items);
+            if (inventoryShow)
+                inventoryShow.UpdateItemList(Items);
         }
 
         public void RemoveItem(string itemName, int count = 1)
         {
-            if (_items.ContainsKey(itemName))
+            if (Items.ContainsKey(itemName))
             {
-                if (count >= _items[itemName])
-                    _items.Remove(itemName);
+                if (count >= Items[itemName])
+                    Items.Remove(itemName);
                 else
-                    _items[itemName] -= count;
+                    Items[itemName] -= count;
 
-                inventoryShow.UpdateItemList(_items);
+                if (inventoryShow)
+                    inventoryShow.UpdateItemList(Items);
             }
         }
     }

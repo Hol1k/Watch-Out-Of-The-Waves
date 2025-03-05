@@ -1,7 +1,8 @@
 using GeneralScripts;
-using Raft.Scripts;
+using Inventory;
+using Inventory.Items;
+using Unity.Mathematics;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace Enemies
 {
@@ -45,6 +46,11 @@ namespace Enemies
         }
 
         public EnemyStats stats;
+
+        [Space]
+        [SerializeField] private EntityInventory inventory;
+        [SerializeField] private GameObject itemPrefab;
+        
         private float _attackCooldown;
 
         private void Awake()
@@ -150,6 +156,15 @@ namespace Enemies
 
         public void OnDeath()
         {
+            foreach (var item in inventory.Items)
+            {
+                var itemObject = Instantiate(itemPrefab, transform.position, quaternion.identity);
+
+                var itemData = itemObject.GetComponent<LootableItem>();
+                itemData.itemName = item.Key;
+                itemData.count = item.Value;
+            }
+            
             Destroy(gameObject);
         }
     }

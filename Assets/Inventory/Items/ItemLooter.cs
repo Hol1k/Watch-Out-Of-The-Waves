@@ -37,10 +37,10 @@ namespace Inventory.Items
 
             foreach (Collider targetCollider in hitColliders)
             {
-                if (targetCollider.TryGetComponent(out LootableItem target) && !target.isMovingToTarget)
+                if (targetCollider.TryGetComponent(out LootableItem target) && !target.IsMovingToTarget)
                 {
                     target.MovingCoroutine = StartCoroutine(target.MoveToTarget(this));
-                    target.isMovingToTarget = true;
+                    target.IsMovingToTarget = true;
                 }
             }
         }

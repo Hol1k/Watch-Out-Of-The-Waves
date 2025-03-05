@@ -150,7 +150,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e8c0157eb33c5954c8950f52cd6064ca, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lootRadius: 4
+  swimToWaterLevelSpeed: 4
   lootForce: 5
   itemName: Wood
   count: 1
