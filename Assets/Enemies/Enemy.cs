@@ -156,13 +156,16 @@ namespace Enemies
 
         public void OnDeath()
         {
-            foreach (var item in inventory.Items)
+            if (inventory)
             {
-                var itemObject = Instantiate(itemPrefab, transform.position, quaternion.identity);
+                foreach (var item in inventory.Items)
+                {
+                    var itemObject = Instantiate(itemPrefab, transform.position, quaternion.identity);
 
-                var itemData = itemObject.GetComponent<LootableItem>();
-                itemData.itemName = item.Key;
-                itemData.count = item.Value;
+                    var itemData = itemObject.GetComponent<LootableItem>();
+                    itemData.itemName = item.Key;
+                    itemData.count = item.Value;
+                }
             }
             
             Destroy(gameObject);
