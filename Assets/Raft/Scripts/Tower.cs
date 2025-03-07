@@ -45,6 +45,29 @@ namespace Raft.Scripts
             }
         }
 
+        private void ChoseTargetNearby()
+        {
+            var hitColliders = Physics.OverlapSphere(transform.position, GetCurrentAttackRange(true));
+            
+            Vector3 selfPosition2D = new Vector3(transform.position.x, 0, transform.position.z);
+            Transform nearestEnemy = null;
+            float minDistance = float.MaxValue;
+            foreach (var hitCollider in hitColliders)
+            {
+                if (!hitCollider.gameObject.TryGetComponent(out Enemy enemy)) continue;
+
+                float distance = Vector3.Distance(selfPosition2D,
+                    new Vector3(enemy.transform.position.x, 0, enemy.transform.position.z));
+                if (distance < minDistance)
+                {
+                    minDistance = distance;
+                    nearestEnemy = enemy.transform;
+                }
+            }
+
+            _target = nearestEnemy;
+        }
+
         private void AttackTarget()
         {
             if (_attackCooldown > 0 || !_target)
@@ -77,30 +100,6 @@ namespace Raft.Scripts
             projectile.Target = _target;
             projectile.Damage = GetCurrentDamage(true);
             projectile.Speed = GetCurrentProjectileSpeed(true);
-        }
-
-        private void ChoseTargetNearby()
-        {
-            // ReSharper disable once Unity.PreferNonAllocApi
-            var hitColliders = Physics.OverlapSphere(transform.position, GetCurrentAttackRange(true));
-            
-            Vector3 position2D = new Vector3(transform.position.x, 0, transform.position.z);
-            Transform nearestEnemy = null;
-            float minDistance = float.MaxValue;
-            foreach (var hitCollider in hitColliders)
-            {
-                if (!hitCollider.gameObject.TryGetComponent(out Enemy enemy)) continue;
-
-                float distance = Vector3.Distance(position2D,
-                    new Vector3(enemy.transform.position.x, 0, enemy.transform.position.z));
-                if (distance < minDistance)
-                {
-                    minDistance = distance;
-                    nearestEnemy = enemy.transform;
-                }
-            }
-
-            _target = nearestEnemy;
         }
 
         public float GetCurrentDamage(bool withBonus)

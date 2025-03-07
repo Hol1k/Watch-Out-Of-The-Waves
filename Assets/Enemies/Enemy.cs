@@ -1,7 +1,9 @@
 using GeneralScripts;
 using Inventory;
 using Inventory.Items;
+using Raft.Scripts;
 using Unity.Mathematics;
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace Enemies
@@ -28,9 +30,6 @@ namespace Enemies
 
         [SerializeField] private float smoothingFactor = 0.05f;
 
-        public Transform target;
-
-
         [Space]
         [SerializeField] [Min(0)] private int currentHealth = 1;
 
@@ -45,13 +44,19 @@ namespace Enemies
             }
         }
 
+
         public EnemyStats stats;
 
         [Space]
         [SerializeField] private EntityInventory inventory;
+
         [SerializeField] private GameObject itemPrefab;
-        
+
         private float _attackCooldown;
+
+        [Space]
+        [SerializeField] private BuildingsManager buildingsManager;
+        public Transform target;
 
         private void Awake()
         {
@@ -64,6 +69,7 @@ namespace Enemies
 
         private void FixedUpdate()
         {
+            ChoseTarget();
             MoveToTarget();
             AttackTarget();
         }
@@ -123,6 +129,47 @@ namespace Enemies
             {
                 _isTargetOnRange = false;
             }
+        }
+
+        private void ChoseTarget()
+        {
+            if (!target.IsDestroyed())
+                target = null;
+            
+            if (!target)
+            {
+                switch (stats.priorityTarget)
+                {
+                    case EnemiesTargetPriority.NearestBuilding:
+                        ChoseTargetNearbyBuilding();
+                        break;
+                }
+            }
+        }
+
+        private void ChoseTargetNearbyBuilding()
+        {
+            var buildings = buildingsManager.Buildings;
+            buildings.AddRange(buildingsManager.Planes);
+            
+            Vector3 selfPosition2D = new Vector3(transform.position.x, 0, transform.position.z);
+            Transform nearestTower = null;
+            float minDistance = float.MaxValue;
+            foreach (var building in buildings)
+            {
+                if (!building)
+                    continue;
+                
+                float distance = Vector3.Distance(selfPosition2D,
+                    new Vector3(building.transform.position.x, 0, building.transform.position.z));
+                if (distance < minDistance)
+                {
+                    minDistance = distance;
+                    nearestTower = building.transform;
+                }
+            }
+
+            target = nearestTower;
         }
 
         private void AttackTarget()

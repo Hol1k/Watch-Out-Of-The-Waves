@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Inventory;
@@ -17,10 +18,10 @@ namespace Raft.Scripts
         private InputAction _mouseLeftClickAction;
         private bool _mouseLeftClickRequested;
 
-        private List<Building> _buildings;
-        private List<Plane> _planes;
-        private List<Plane> _planeBlueprints;
-        private Plane _corePlain;
+        [NonSerialized] public List<Building> Buildings;
+        [NonSerialized] public List<Plane> Planes;
+        [NonSerialized] public List<PlaneBlueprint> PlaneBlueprints;
+        [NonSerialized] public Plane CorePlain;
         
         private Building _druggedBuilding;
         
@@ -42,9 +43,9 @@ namespace Raft.Scripts
 
         private void Awake()
         {
-            _buildings = new List<Building>();
-            _planes = new List<Plane>();
-            _planeBlueprints = new List<Plane>();
+            Buildings = new List<Building>();
+            Planes = new List<Plane>();
+            PlaneBlueprints = new List<PlaneBlueprint>();
             
             _mouseLeftClickAction = InputSystem.actions.FindAction("Mouse LeftClick");
             _mouseLookAction = InputSystem.actions.FindAction("Look");
@@ -92,7 +93,7 @@ namespace Raft.Scripts
 
         private void SetBlueprintsActive(bool value)
         {
-            foreach (var blueprint in _planeBlueprints)
+            foreach (var blueprint in PlaneBlueprints)
             {
                 blueprint.gameObject.SetActive(value);
             }
@@ -197,7 +198,7 @@ namespace Raft.Scripts
                 buildingObject.transform.SetParent(transform);
                 buildingObject.name = buildingType.ToString();
 
-                _buildings.Add(building);
+                Buildings.Add(building);
                 building.SetBuildingManager(this);
 
                 building.buildingType = buildingType;
@@ -270,15 +271,15 @@ namespace Raft.Scripts
                 BuildingType.CorePlane :
                 BuildingType.Plane;
             
-            _planes.Add(plane);
-            if (isCorePlain) _corePlain = plane;
+            Planes.Add(plane);
+            if (isCorePlain) CorePlain = plane;
             return plane;
         }
 
         private Plane PlacePlane(int xCoord, int yCoord, int maxHealth = DefaultHealth, int currentHealth = DefaultHealth, bool isCorePlain = false)
         {
             //If Blueprint with it coords exists
-            foreach (var blueprint in _planeBlueprints)
+            foreach (var blueprint in PlaneBlueprints)
             {
                 if (blueprint.xCoord == xCoord && blueprint.yCoord == yCoord)
                 {
@@ -344,7 +345,10 @@ namespace Raft.Scripts
             planeBlueprint.maxHealth = int.MaxValue;
             planeBlueprint.CurrentHealth = int.MaxValue;
                     
-            _planeBlueprints.Add(planeBlueprint);
+            PlaneBlueprints.Add(planeBlueprint);
+            
+            if (PlayerStateMachine.State != PlayerStateMachine.PlayerState.BuildMode)
+                planeBlueprint.gameObject.SetActive(false);
             
             return planeBlueprint;
         }
@@ -353,13 +357,13 @@ namespace Raft.Scripts
         {
             List<Plane> neighbourCells = new();
             
-            foreach (Plane placedPlane in _planes)
+            foreach (Plane placedPlane in Planes)
             {
                 if (placedPlane.xCoord >= plane.xCoord - 1 && placedPlane.xCoord <= plane.xCoord + 1 &&
                     placedPlane.yCoord >= plane.yCoord - 1 && placedPlane.yCoord <= plane.yCoord + 1)
                     neighbourCells.Add(placedPlane);
             }
-            foreach (Plane placedPlaneBlueprint in _planeBlueprints)
+            foreach (Plane placedPlaneBlueprint in PlaneBlueprints)
             {
                 if (placedPlaneBlueprint.xCoord >= plane.xCoord - 1 && placedPlaneBlueprint.xCoord <= plane.xCoord + 1 &&
                     placedPlaneBlueprint.yCoord >= plane.yCoord - 1 && placedPlaneBlueprint.yCoord <= plane.yCoord + 1)
@@ -437,17 +441,10 @@ namespace Raft.Scripts
             }
         }
 
-        public void RemovePlaneFromList(Plane plane)
-        {
-            _planes.Remove(plane);
-        }
+        public void RemovePlaneFromList(Plane plane) => Planes.Remove(plane);
 
-        public void RemovePlaneBlueprintFromList(PlaneBlueprint blueprint)
-        {
-            _planeBlueprints.Remove(blueprint);
-        }
+        public void RemovePlaneBlueprintFromList(PlaneBlueprint blueprint) => PlaneBlueprints.Remove(blueprint);
 
-        public void RemoveBuildingFromList(Building building)
-            => _buildings.Remove(building);
+        public void RemoveBuildingFromList(Building building) => Buildings.Remove(building);
     }
 }

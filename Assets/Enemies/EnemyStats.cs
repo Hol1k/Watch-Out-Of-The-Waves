@@ -1,17 +1,18 @@
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace Enemies
 {
     [CreateAssetMenu(fileName = "New Enemy", menuName = "Enemies/Enemy")]
     public class EnemyStats : ScriptableObject
     {
-        public EnemiesTargetPriority targetPriority = EnemiesTargetPriority.ClosestBuilding;
-        public int maxHealth = 10;
+        public EnemiesTargetPriority priorityTarget = EnemiesTargetPriority.NearestBuilding;
+        
+        [Space]
+        public int maxHealth = 20;
         public float attackRange = 1.5f;
         public float moveSpeed = 3f;
-        public float damage;
+        public float damage = 5f;
         [Tooltip("Attack per minute")]
-        public float attackSpeed;
+        public float attackSpeed = 60f;
     }
 }
