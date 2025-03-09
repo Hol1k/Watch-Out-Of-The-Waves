@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using GeneralScripts;
 using Inventory;
 using Inventory.Items;
@@ -49,14 +51,14 @@ namespace Enemies
 
         [Space]
         [SerializeField] private EntityInventory inventory;
-
         [SerializeField] private GameObject itemPrefab;
 
         private float _attackCooldown;
 
         [Space]
-        [SerializeField] private BuildingsManager buildingsManager;
         public Transform target;
+        
+        [NonSerialized] public BuildingsManager BuildingsManager = null;
 
         private void Awake()
         {
@@ -149,8 +151,10 @@ namespace Enemies
 
         private void ChoseTargetNearbyBuilding()
         {
-            var buildings = buildingsManager.Buildings;
-            buildings.AddRange(buildingsManager.Planes);
+            var buildings = new List<Building>();
+            
+            buildings.AddRange(BuildingsManager.Buildings);
+            buildings.AddRange(BuildingsManager.Planes);
             
             Vector3 selfPosition2D = new Vector3(transform.position.x, 0, transform.position.z);
             Transform nearestTower = null;
