@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Enemies;
+using GeneralScripts;
+using Raft.Scripts;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -106,18 +108,19 @@ namespace Player.Scripts
                 var boxColliders = Physics.OverlapBox(transform.position,
                     new Vector3(attackRange, attackSize / 2f, attackRange));
 
-                List<Enemy> enemiesToAttack = new();
+                List<IDamageable> targetsToAttack = new();
                 foreach (var currCollider in sphereColliders.Intersect(boxColliders))
                 {
                     Vector3 directionToTarget = (currCollider.transform.position - transform.position).normalized;
                     directionToTarget.y = 0f;
                     float angle = Vector3.Angle(transform.forward, directionToTarget);
-                    
-                    if (angle <= attackRadius / 2 && currCollider.TryGetComponent(out Enemy enemy))
-                        enemiesToAttack.Add(enemy);
+
+                    if (angle <= attackRadius / 2 && currCollider.TryGetComponent(out IDamageable target) &&
+                        target is not Building)
+                        targetsToAttack.Add(target);
                 }
 
-                foreach (var enemy in enemiesToAttack)
+                foreach (var enemy in targetsToAttack)
                 {
                     enemy.TakeDamage(damage);
                 }

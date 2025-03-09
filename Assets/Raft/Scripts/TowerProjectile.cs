@@ -1,5 +1,6 @@
 using System;
 using Enemies;
+using GeneralScripts;
 using UnityEngine;
 
 namespace Raft.Scripts
@@ -17,9 +18,9 @@ namespace Raft.Scripts
 
         private void OnTriggerEnter(Collider other)
         {
-            if (!other.gameObject.TryGetComponent(out Enemy enemy)) return;
+            if (!other.gameObject.TryGetComponent(out IDamageable damageable) || damageable is Building) return;
                 
-            enemy.TakeDamage(Damage);
+            damageable.TakeDamage(Damage);
             Destroy(gameObject);
         }
 

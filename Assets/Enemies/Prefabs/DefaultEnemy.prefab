@@ -9,7 +9,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 982129249578801443}
-  - component: {fileID: 2152955004539024921}
   - component: {fileID: 8046459633261082101}
   - component: {fileID: 1665821970641470978}
   - component: {fileID: 845162932860208752}
@@ -36,14 +35,6 @@ Transform:
   - {fileID: 3431004327948071909}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!33 &2152955004539024921
-MeshFilter:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1381273683430318487}
-  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!143 &8046459633261082101
 CharacterController:
   m_ObjectHideFlags: 0
@@ -91,7 +82,6 @@ MonoBehaviour:
   stats: {fileID: 11400000, guid: 2bbb342250a48d34f8619c943c7a2a63, type: 2}
   inventory: {fileID: 845162932860208752}
   itemPrefab: {fileID: 4268506575867421135, guid: 9d2ee1d1a62a9294da7beaf9f1f2c094, type: 3}
-  buildingsManager: {fileID: 0}
   target: {fileID: 0}
 --- !u!114 &845162932860208752
 MonoBehaviour:

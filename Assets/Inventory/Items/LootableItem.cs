@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Inventory.Items
 {
-    public class LootableItem : MonoBehaviour
+    public class LootableItem : MonoBehaviour, ISwimable
     {
         private Rigidbody _rb;
         
@@ -55,7 +55,7 @@ namespace Inventory.Items
             // ReSharper disable once IteratorNeverReturns
         }
 
-        private void Swim()
+        public void Swim()
         {
             if (!IsMovingToTarget)
             {

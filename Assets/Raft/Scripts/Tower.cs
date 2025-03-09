@@ -1,4 +1,5 @@
 using Enemies;
+using GeneralScripts;
 using Raft.TowerAbilities;
 using UnityEngine;
 
@@ -47,21 +48,27 @@ namespace Raft.Scripts
 
         private void ChoseTargetNearby()
         {
-            var hitColliders = Physics.OverlapSphere(transform.position, GetCurrentAttackRange(true));
+            var overlapColliders = Physics.OverlapSphere(transform.position, GetCurrentAttackRange(true));
             
             Vector3 selfPosition2D = new Vector3(transform.position.x, 0, transform.position.z);
             Transform nearestEnemy = null;
             float minDistance = float.MaxValue;
-            foreach (var hitCollider in hitColliders)
+            foreach (var overlapCollider in overlapColliders)
             {
-                if (!hitCollider.gameObject.TryGetComponent(out Enemy enemy)) continue;
+                if (!overlapCollider.gameObject.TryGetComponent(out IDamageable target) || target is Building)
+                    continue;
 
-                float distance = Vector3.Distance(selfPosition2D,
-                    new Vector3(enemy.transform.position.x, 0, enemy.transform.position.z));
-                if (distance < minDistance)
+                if (target is MonoBehaviour monoBehaviourTarget)
                 {
-                    minDistance = distance;
-                    nearestEnemy = enemy.transform;
+                    var targetTransform = monoBehaviourTarget.transform;
+                    
+                    float distance = Vector3.Distance(selfPosition2D,
+                        new Vector3(targetTransform.position.x, 0, targetTransform.position.z));
+                    if (distance < minDistance)
+                    {
+                        minDistance = distance;
+                        nearestEnemy = targetTransform;
+                    }
                 }
             }
 
