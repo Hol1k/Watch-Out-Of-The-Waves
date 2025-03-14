@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 7608126596984589694}
   - component: {fileID: 6799375245091000648}
   m_Layer: 0
-  m_Name: MeleeDefaultAttackProjectile
+  m_Name: Shark_attackPrjectile
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

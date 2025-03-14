@@ -1103,7 +1103,7 @@ MonoBehaviour:
   waves:
   - position: 1
     enemies:
-    - enemyPrefab: {fileID: 1381273683430318487, guid: 6d31d5be0b178bb4993f49b779b56c8d, type: 3}
+    - enemyPrefab: {fileID: 267106233683687131, guid: 6d31d5be0b178bb4993f49b779b56c8d, type: 3}
       count: 4
   minDistanceToSpawn: 50
   maxDistanceToSpawn: 70
