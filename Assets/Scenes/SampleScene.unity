@@ -179,6 +179,7 @@ GameObject:
   - component: {fileID: 247788517}
   - component: {fileID: 247788516}
   - component: {fileID: 247788515}
+  - component: {fileID: 247788518}
   m_Layer: 4
   m_Name: Ocean
   m_TagString: Untagged
@@ -254,6 +255,28 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!95 &247788518
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 247788513}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 97912f44b2f86a9478d4cf72add2ebce, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &330585543
 GameObject:
   m_ObjectHideFlags: 0
@@ -1103,7 +1126,7 @@ MonoBehaviour:
   waves:
   - position: 1
     enemies:
-    - enemyPrefab: {fileID: 267106233683687131, guid: 6d31d5be0b178bb4993f49b779b56c8d, type: 3}
+    - enemyPrefab: {fileID: 8351899252446128560, guid: 6389191905115a8418c4b8281e1a6587, type: 3}
       count: 4
   minDistanceToSpawn: 50
   maxDistanceToSpawn: 70
