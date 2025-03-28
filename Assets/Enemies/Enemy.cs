@@ -7,26 +7,20 @@ using Raft.Scripts;
 using Unity.Mathematics;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.AI;
+using Plane = Raft.Scripts.Plane;
 
 namespace Enemies
 {
-    public sealed class Enemy : MonoBehaviour, IDamageable
+    public class Enemy : MonoBehaviour, IDamageable
     {
-        private const float WaterLevel = 0f;
-        private bool _isInWater;
+        [SerializeField] protected NavMeshAgent agent;
+        [SerializeField] protected Animator animator;
         
         private bool _isTargetOnRange;
-        [SerializeField] private AttackType attackType;
-        [Tooltip("Projectile for attack prefab with AttackProjectile.cs")]
-        [SerializeField] private GameObject attackProjectilePrefab;
-        [SerializeField] private Vector3 attackOffset;
-
-        private CharacterController _characterController;
-        [SerializeField] private float gravity = -9.81f;
 
         private Vector3 _visualModelPosition;
-
-
+        
         [Space]
         [SerializeField] private Transform modelTransform;
 
@@ -53,17 +47,12 @@ namespace Enemies
         [SerializeField] private EntityInventory inventory;
         [SerializeField] private GameObject itemPrefab;
 
-        private float _attackCooldown;
-
-        [Space]
-        public Transform target;
+        protected Transform Target;
         
         [NonSerialized] public BuildingsManager BuildingsManager = null;
 
         private void Awake()
         {
-            _characterController = GetComponent<CharacterController>();
-            
             _visualModelPosition = modelTransform.position;
             
             currentHealth = stats.maxHealth;
@@ -72,8 +61,6 @@ namespace Enemies
         private void FixedUpdate()
         {
             ChoseTarget();
-            MoveToTarget();
-            AttackTarget();
         }
 
         private void LateUpdate()
@@ -88,117 +75,55 @@ namespace Enemies
             else if (currentHealth == 0) OnDeath();
         }
 
-        private void OnTriggerEnter(Collider other)
+        protected void ChoseTarget()
         {
-            if (other.CompareTag("Ocean"))
-                _isInWater = true;
-        }
-
-        private void OnTriggerExit(Collider other)
-        {
-            if (other.CompareTag("Ocean"))
-                _isInWater = false;
-        }
-
-        private void MoveToTarget()
-        {
-            if (target)
-            {
-                Vector3 movingVector = Vector3.zero;
-
-                _isTargetOnRange = false;
-                Collider[] colliders = Physics.OverlapSphere(transform.position, stats.attackRange);
-                foreach (Collider buildingCollider in colliders)
-                {
-                    if (buildingCollider.transform == target)
-                    {
-                        _isTargetOnRange = true;
-                        break;
-                    }
-                }
-
-                if (!_isTargetOnRange)
-                {
-                    transform.LookAt(new Vector3(target.position.x, transform.position.y, target.position.z));
-                    movingVector = (transform.rotation * Vector3.forward) * (stats.moveSpeed);
-                }
-
-                movingVector.y = _isInWater ? WaterLevel - transform.position.y : gravity;
-
-                _characterController.Move(movingVector * Time.fixedDeltaTime);
-            }
-            else
-            {
-                _isTargetOnRange = false;
-            }
-        }
-
-        private void ChoseTarget()
-        {
-            if (!target.IsDestroyed())
-                target = null;
+            if (!Target.IsDestroyed())
+                Target = null;
             
-            if (!target)
+            if (!Target)
             {
                 switch (stats.priorityTarget)
                 {
-                    case EnemiesTargetPriority.NearestBuilding:
-                        ChoseTargetNearbyBuilding();
+                    case EnemiesTargetPriority.NearestPlane:
+                        ChoseTargetNearbyPlane();
                         break;
                 }
             }
         }
 
-        private void ChoseTargetNearbyBuilding()
+        private void ChoseTargetNearbyPlane()
         {
-            var buildings = new List<Building>();
+            var planes = new List<Plane>();
             
-            buildings.AddRange(BuildingsManager.Buildings);
-            buildings.AddRange(BuildingsManager.Planes);
+            planes.AddRange(BuildingsManager.Planes);
             
             Vector3 selfPosition2D = new Vector3(transform.position.x, 0, transform.position.z);
             Transform nearestTower = null;
             float minDistance = float.MaxValue;
-            foreach (var building in buildings)
+            foreach (var plane in planes)
             {
-                if (!building)
+                if (!plane)
                     continue;
                 
                 float distance = Vector3.Distance(selfPosition2D,
-                    new Vector3(building.transform.position.x, 0, building.transform.position.z));
+                    new Vector3(plane.transform.position.x, 0, plane.transform.position.z));
                 if (distance < minDistance)
                 {
                     minDistance = distance;
-                    nearestTower = building.transform;
+                    nearestTower = plane.transform;
                 }
             }
 
-            target = nearestTower;
+            Target = nearestTower;
         }
 
-        private void AttackTarget()
-        {
-            if (_attackCooldown > 0f)
-            {
-                _attackCooldown -= Time.fixedDeltaTime;
-                return;
-            }
-            if (_isTargetOnRange)
-            {
-                var attackObject = Instantiate(attackProjectilePrefab, transform.position + attackOffset,
-                    Quaternion.identity);
-                attackObject.GetComponent<EnemyAttackProjectile>().CastAttack(target, stats.damage, attackType);
-                _attackCooldown = 60f / stats.attackSpeed;
-            }
-        }
-
-        private void SmoothModel()
+        protected void SmoothModel()
         {
             _visualModelPosition = Vector3.Lerp(_visualModelPosition, transform.position, 1 / smoothingFactor * Time.deltaTime);
             modelTransform.position = _visualModelPosition;
         }
 
-        public void TakeDamage(float damage)
+        public virtual void TakeDamage(float damage)
         {
             if (damage <= 0) return;
             currentHealth -= (int)damage;

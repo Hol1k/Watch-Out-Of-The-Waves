@@ -1,3 +1,6 @@
+using System.Collections.Generic;
+using UnityEngine;
+
 namespace Raft.Scripts
 {
     public class Plane : Building
@@ -14,6 +17,12 @@ namespace Raft.Scripts
 
         public override void OnDeath()
         {
+            List<Transform> children = new List<Transform>();
+            foreach (Transform child in transform)
+                children.Add(child);
+            foreach (Transform child in children)
+                child.SetParent(null);
+            
             BuildingManager.DestroyPlane(this);
         }
     }

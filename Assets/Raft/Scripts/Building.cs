@@ -44,6 +44,13 @@ namespace Raft.Scripts
         public virtual void OnDeath()
         {
             BuildingManager.RemoveBuildingFromList(this);
+            
+            List<Transform> children = new List<Transform>();
+            foreach (Transform child in transform)
+                children.Add(child);
+            foreach (Transform child in children)
+                child.SetParent(null);
+            
             Destroy(gameObject);
         }
 

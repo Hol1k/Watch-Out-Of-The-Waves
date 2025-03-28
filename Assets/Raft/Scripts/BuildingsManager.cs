@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Inventory;
 using Player.Scripts;
+using Unity.AI.Navigation;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -25,6 +26,9 @@ namespace Raft.Scripts
         
         private Building _druggedBuilding;
         
+        [SerializeField] private NavMeshSurface navigationSurface;
+        
+        [Space]
         [SerializeField] private Camera cam;
         
         [Space]
@@ -136,6 +140,8 @@ namespace Raft.Scripts
                             }
                             else if (chosenBuilding == BuildingType.DruggedBuilding && !_druggedBuilding)
                                 PickUpBuilding(buildingHit);
+
+                            navigationSurface.UpdateNavMesh(navigationSurface.navMeshData);
                         }
                         break;
                 }

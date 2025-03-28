@@ -125,6 +125,7 @@ MonoBehaviour:
   - resourceName: Wood
     amount: 4
   buildingType: 0
+  level: 1
   currentHealth: 0
   maxHealth: 0
   xCoord: 0

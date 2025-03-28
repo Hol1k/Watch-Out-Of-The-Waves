@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 8773016323696507212}
   - component: {fileID: 7289162809160467736}
   - component: {fileID: -7589080447959412001}
+  - component: {fileID: 5057737395327223998}
   m_Layer: 0
   m_Name: Plane
   m_TagString: Untagged
@@ -158,3 +159,19 @@ MonoBehaviour:
   maxHealth: 0
   xCoord: 0
   yCoord: 0
+--- !u!208 &5057737395327223998
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6730893107850535528}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.5, y: 0.5, z: 0.5}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 0
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5

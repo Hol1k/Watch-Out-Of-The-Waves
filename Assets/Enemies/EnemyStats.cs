@@ -5,7 +5,7 @@ namespace Enemies
     [CreateAssetMenu(fileName = "New Enemy", menuName = "Enemies/Enemy")]
     public class EnemyStats : ScriptableObject
     {
-        public EnemiesTargetPriority priorityTarget = EnemiesTargetPriority.NearestBuilding;
+        public EnemiesTargetPriority priorityTarget = EnemiesTargetPriority.NearestPlane;
         
         [Space]
         public int maxHealth = 20;

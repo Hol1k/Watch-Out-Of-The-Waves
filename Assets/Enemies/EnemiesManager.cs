@@ -50,7 +50,7 @@ namespace Enemies
                         spawnPosition += spawnRotation * Vector3.forward *
                                          Random.Range(minDistanceToSpawn, maxDistanceToSpawn);
                         spawnPosition.y -= 5f; //Spawn under water
-                        Debug.Log(Vector3.Distance(playerTransform.position, spawnPosition));
+                        
                         var enemyObject = Instantiate(enemyCount.enemyPrefab, spawnPosition, Quaternion.identity);
 
                         var enemy = enemyObject.GetComponent<Enemy>();
