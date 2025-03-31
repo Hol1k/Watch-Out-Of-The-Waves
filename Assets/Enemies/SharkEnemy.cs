@@ -12,6 +12,7 @@ namespace Enemies
         private SharkState _state = SharkState.MovingToTarget;
         private Vector3 _attackPoint;
         private float _attackCooldown;
+        private float _takenDamageOnLastAttack;
         
         [Space]
         [SerializeField] private float minWanderingTime;
@@ -129,13 +130,14 @@ namespace Enemies
             {
                 agent.ResetPath();
                 transform.SetParent(Target);
+                _takenDamageOnLastAttack = 0f;
                 _state = SharkState.Attacking;
             }
         }
 
         private void Attack()
         {
-            if (Target.IsDestroyed() || !Target || (float)CurrentHealth / stats.maxHealth <= 0.4f)
+            if (Target.IsDestroyed() || !Target || _takenDamageOnLastAttack / stats.maxHealth >= 0.6f)
             {
                 _state = SharkState.MovingFromRaft;
                 _currWanderingTime = Random.Range(minWanderingTime, maxWanderingTime);
@@ -197,6 +199,7 @@ namespace Enemies
         public override void TakeDamage(float damage)
         {
             _state = SharkState.MovingToTarget;
+            _takenDamageOnLastAttack += damage;
             base.TakeDamage(damage);
         }
     }
