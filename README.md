@@ -82,8 +82,7 @@ This project explores a compact gameplay loop inspired by Raft-style tile constr
 
 ## Technical Documentation
 
-- Design & development wiki (Notion): <NOTION_PUBLIC_LINK_HERE>
-- Task board (YouGile): <YOUGILE_BOARD_LINK_HERE> (Kanban: ToDo / InProg / Done)
+- [Task board (YouGile)](https://yougile.com/board/lgtgu97exbgk) (Kanban: ToDo / InProg / Done)
 
 ---
 
